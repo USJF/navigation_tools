@@ -3,12 +3,23 @@
 
 #include "coordinate_converter.hpp"
 
+
 class NavigationCalculator : public CoordinateConverter
 {
     public:
     NavigationCalculator();
     ~NavigationCalculator();
 
+    struct PolarData
+    {
+        double range;
+        double bearing;
+    };
+
+    PolarData calculatePolarData(LLA start_point, LLA target_point);
+
+    double calculateRn(double latitude);
+    double calculateRe(double latitude);
 
     private:
     double Rp;
@@ -16,11 +27,10 @@ class NavigationCalculator : public CoordinateConverter
     double e;
     double e2;
 
-    CoordinateConverter::UTM utm_coords;
-    CoordinateConverter::MGRS mgrs_coords;
-    CoordinateConverter::LLA lla_coords;
-    CoordinateConverter::LLADMS lladms_coords;
-    CoordinateConverter::ECEF ecef_coords;
+    double radiansToDegrees(double radians);
+    double degreesToRadians(double degrees);
+    double calculateBearing(double x, double y);
+
 };
 
 #endif

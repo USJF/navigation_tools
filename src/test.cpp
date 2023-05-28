@@ -4,25 +4,19 @@
 
 int main(int argc, char **argv)
 {
-    /*CoordinateConverter converter;
-    CoordinateConverter::LLA lla_coords;
-    lla_coords.latitude = 34.862976;
-    lla_coords.longitude = -86.778458;
-    lla_coords.alt = 186;
-    CoordinateConverter::UTM utm_coords = converter.convertLLA2UTM(lla_coords);
-    std::cout<<utm_coords.easting<<"\t"<<utm_coords.northing<<"\t"<<utm_coords.grid_zone<<std::endl;
-    CoordinateConverter::MGRS mgrs_coords = converter.convertLLA2MGRS(lla_coords);
-    std::cout<<mgrs_coords.easting<<"\t"<<mgrs_coords.northing<<"\t"<<mgrs_coords.grid_zone<<mgrs_coords.grid_letter<<mgrs_coords.false_easting<<mgrs_coords.false_northing<<std::endl;*/
-
     NavigationCalculator calculator;
 
-    NavigationCalculator::LLA lla_coords;
-    lla_coords.latitude = 34.862976;
-    lla_coords.longitude = -86.778458;
-    lla_coords.alt = 186;
+    NavigationCalculator::LLA start_point;
+    start_point.latitude = 34.862976;
+    start_point.longitude = -86.778458;
+    start_point.alt = 135;
 
-    NavigationCalculator::UTM utm_coords = calculator.convertLLA2UTM(lla_coords);
-    std::cout<<utm_coords.easting<<"\t"<<utm_coords.northing<<"\t"<<utm_coords.grid_zone<<std::endl;
-    NavigationCalculator::MGRS mgrs_coords = calculator.convertLLA2MGRS(lla_coords);
-    std::cout<<mgrs_coords.easting<<"\t"<<mgrs_coords.northing<<"\t"<<mgrs_coords.grid_zone<<mgrs_coords.grid_letter<<mgrs_coords.false_easting<<mgrs_coords.false_northing<<std::endl;
+    NavigationCalculator::LLA target_point;
+    target_point.latitude = 35.042636;
+    target_point.longitude = -86.983825;
+    target_point.alt = 202;
+
+    NavigationCalculator::PolarData data = calculator.calculatePolarData(start_point, target_point);
+    std::cout<<data.range<<"\t"<<data.bearing<<std::endl;
+    
 }
