@@ -16,6 +16,7 @@ NavigationCalculator::~NavigationCalculator()
 double NavigationCalculator::calculateRn(double latitude)
 {
     double num = (1 - e2) * R0;
+
     double den = pow(1 - (e2 * pow(sin(latitude), 2)), 3/2);
     return num/den;
 }
@@ -61,45 +62,33 @@ double NavigationCalculator::radiansToDegrees(double radians)
     return radians * 180.0 / M_PI;
 }
 
-double NavigationCalculator::calculateBearing(double x,  double y)
+double NavigationCalculator::calculateBearing(double delta_east,  double delta_north)
 {
-    double delta_east = x;
-    double delta_north = y;
-    double target_range = sqrt(pow(delta_east,2) + pow(delta_north,2));
     double target_bearing = atan(delta_east/delta_north);
     if (delta_east<0)
     {
-        //std::cout<<"Left - ";
         if (delta_north<0)
         {
-            //std::cout<<"Back"<<std::endl;
             target_bearing += M_PI;
         }
         else
         {
-            //std::cout<<"Forward"<<std::endl;
             target_bearing += 2*M_PI;
         }
     }
     else
     {
-        //std::cout<<"Right - ";
         if (delta_north<0)
         {
-            //std::cout<<"Back"<<std::endl;
             target_bearing += M_PI;
         }
         else
         {
-            //std::cout<<"Forward"<<std::endl;
             //do nothing
         }
     }
-    /*if (target_bearing > M_PI)
-    {
-        target_bearing = target_bearing - 2*M_PI;
-    }*/
-    double relative_bearing = target_bearing;// - (follower_bearing*M_PI/180);
+    
+    double relative_bearing = target_bearing;
     if(relative_bearing>M_PI)
     {
         relative_bearing += -2*M_PI;

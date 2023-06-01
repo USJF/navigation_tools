@@ -2,7 +2,8 @@
 #define NAVIGATION_CALCULATOR_HPP
 
 #include "coordinate_converter.hpp"
-
+#include <vector>
+#include <cmath>
 
 class NavigationCalculator : public CoordinateConverter
 {
@@ -29,8 +30,7 @@ class NavigationCalculator : public CoordinateConverter
 
     double radiansToDegrees(double radians);
     double degreesToRadians(double degrees);
-    double calculateBearing(double x, double y);
-
+    double calculateBearing(double delta_east, double delta_north);
 };
 
 #endif
