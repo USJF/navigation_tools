@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <string>
 
+#include <iostream>
+
 #include "mgrs_lookup_functions.hpp"
 
 class CoordinateConverter
@@ -140,18 +142,17 @@ class CoordinateConverter
     int grid_zone;
 
     // ECEF2LLA Variables
-    double rho;
+    //double rho;
     double count;
-    double cosprev;
-    double sinprev;
-    double cosbeta;
-    double sinbeta;
-    double u;
-    double v;
-    double error;
+    double old;
     double error_threshold;
     bool converge;
     double N;
+    double s;
+    double beta;
+    double den;
+    double num;
+    double f_inv;
 
     //Utility Functions
     void calculateGridZone();

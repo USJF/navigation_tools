@@ -20,6 +20,9 @@ CoordinateConverter::CoordinateConverter()
     error_threshold = 1e-16;
     rad2deg = 180.0 / M_PI;
     deg2rad = M_PI / 180.0;
+
+    // ECEF vars
+    f_inv = 1.0/f;
 }
 
 CoordinateConverter::~CoordinateConverter()
@@ -346,6 +349,76 @@ CoordinateConverter::LLA CoordinateConverter::convertECEF2LLA(CoordinateConverte
     LLA lla_coords;
     lla_coords.longitude = atan2(ecef_in.y, ecef_in.x) * rad2deg;
 
+    s = sqrt(pow(ecef_in.x, 2) + pow(ecef_in.y, 2));
+
+    beta = atan2(ecef_in.z, (1-f_inv)*s);
+    num = ecef_in.z + (e2 * (1-f_inv)/(1-e2)) * a * pow(sin(beta), 3);
+    den = s - e2 * a * pow(cos(beta), 3);
+    lat_rad = atan2(num, den);
+
+    converge = false;
+    count = 0;
+    while (!converge)
+    {
+        old = lat_rad;
+        beta = atan2((1-f_inv)*sin(lat_rad), cos(lat_rad));
+        num = ecef_in.z + (e2 * (1-f_inv)/(1-e2)) * a * pow(sin(beta), 3);
+        den = s - e2 * a * pow(cos(beta), 3);
+        lat_rad = atan2(num, den);
+
+        if (abs(lat_rad - old) * rad2deg < error_threshold)
+        {
+            converge = true;
+        }   
+        else if(count > 100)
+        {
+            converge = true;
+        }
+        count++;
+    }
+
+    lla_coords.latitude = lat_rad*rad2deg;
+    N = a/sqrt(1-e2*pow(sin(lat_rad), 2));
+    lla_coords.alt = s * cos(lat_rad) + (ecef_in.z + e2 * N * sin(lat_rad)) * sin(lat_rad) - N;
+
+//second attempt
+    /*p = sqrt(pow(ecef_in.x, 2) + pow(ecef_in.y, 2));
+
+    lla_coords.longitude = atan2(ecef_in.y, ecef_in.x) * rad2deg;
+
+    lla_coords.latitude = atan2(ecef_in.z, (p*(1.0-e2)));
+
+    old = lla_coords.latitude;
+    converge = false;
+    count = 0;
+    
+    while (!converge)
+    {
+        old = lla_coords.latitude;
+        N = a / sqrt(1.0-e2*pow(sin(lla_coords.latitude), 2));
+        lla_coords.alt = (p/cos(lla_coords.latitude)) - N;
+        lla_coords.latitude = atan2(ecef_in.z, (p*(1.0-e2*pow(sin(lla_coords.latitude), 2))));
+
+        if (abs(lla_coords.latitude - old) * rad2deg < error_threshold)
+        {
+            converge = true;
+        }
+        else if(count > 100)
+        {
+            converge = true;
+        }
+        count++;
+    }
+
+    lla_coords.latitude = lla_coords.latitude * rad2deg;
+
+    N = a / sqrt(1.0-e2*pow(sin(lla_coords.latitude*deg2rad), 2));
+
+    lla_coords.alt = (ecef_in.z/sin(lla_coords.latitude*deg2rad)) - ((1-e2)*N); */
+
+// 1st Attempt
+
+    /*
     rho = sqrt(ecef_in.x * ecef_in.x + ecef_in.y * ecef_in.y);
 
     u = a * rho;
@@ -362,6 +435,7 @@ CoordinateConverter::LLA CoordinateConverter::convertECEF2LLA(CoordinateConverte
     converge = false;
     while (!converge)
     {
+
         cosprev = cosbeta;
         sinprev = sinbeta;
         u = rho - a * e2 * pow(cosbeta, 3);
@@ -391,6 +465,7 @@ CoordinateConverter::LLA CoordinateConverter::convertECEF2LLA(CoordinateConverte
 
     N = a / sqrt(1 - e2 * sinbeta * sinbeta);
     lla_coords.alt = rho * cosbeta + (ecef_in.z + e2 * N * sinbeta) * sinbeta - N;
+    */
 
     return lla_coords;
 }
@@ -399,13 +474,12 @@ CoordinateConverter::ECEF CoordinateConverter::convertLLA2ECEF(CoordinateConvert
 {
     ECEF ecef_coords;
 
-    sinbeta = sin(lla_in.latitude);
-    cosbeta = cos(lla_in.longitude);
-    N = a / sqrt(1 - e2 * sinbeta * sinbeta);
+    N = a / sqrt(1 - e2 * pow(sin(lla_in.latitude * deg2rad), 2));
 
-    ecef_coords.x = (N + lla_in.alt) * cosbeta * cosbeta;
-    ecef_coords.y = (N + lla_in.alt) * cosbeta * sinbeta;
-    ecef_coords.z = ((pow(a, 2) / pow(b, 2)) * N + lla_in.alt) * sinbeta;
+    ecef_coords.x = (N + lla_in.alt) * cos(lla_in.latitude * deg2rad) * cos(lla_in.longitude * deg2rad);
+    ecef_coords.y = (N + lla_in.alt) * cos(lla_in.latitude * deg2rad) * sin(lla_in.longitude * deg2rad);
+    //ecef_coords.z = ((pow(a, 2) / pow(b, 2)) * N + lla_in.alt) * sin(lla_in.latitude * deg2rad);
+    ecef_coords.z = ((1-e2)*N + lla_in.alt) * sin(lla_in.latitude * deg2rad);
 
     return ecef_coords;
 }

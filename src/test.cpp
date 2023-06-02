@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "navigation_calculator.hpp"
 
@@ -17,6 +18,15 @@ int main(int argc, char **argv)
     target_point.alt = 202;
 
     NavigationCalculator::PolarData data = calculator.calculatePolarData(start_point, target_point);
-    std::cout<<data.range<<"\t"<<data.bearing<<std::endl;
+
+    NavigationCalculator::LLA lla;
+    lla.latitude = 32.436966;
+    lla.longitude = -94.797127;
+    lla.alt = 67.0;
+    NavigationCalculator::ECEF ecef = calculator.convertLLA2ECEF(lla);
+    lla = calculator.convertECEF2LLA(ecef);
     
+    std::cout<<std::fixed<<std::setprecision(6)<<std::endl;
+    std::cout<<lla.latitude<<"\t"<<lla.longitude<<"\t"<<lla.alt<<std::endl;
+
 }

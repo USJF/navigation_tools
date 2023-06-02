@@ -4,6 +4,7 @@
 #include "coordinate_converter.hpp"
 #include <vector>
 #include <cmath>
+#include <iostream>
 
 class NavigationCalculator : public CoordinateConverter
 {

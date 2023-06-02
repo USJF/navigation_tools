@@ -42,6 +42,13 @@ NavigationCalculator::PolarData NavigationCalculator::calculatePolarData(LLA sta
 
     PolarData outputData;
     outputData.range = sqrt(pow(delta_easting, 2) + pow(delta_northing, 2));
+
+    ECEF ecef_start = convertLLA2ECEF(start_point);
+    ECEF ecef_target = convertLLA2ECEF(target_point);
+    double delta_x = ecef_target.x - ecef_start.x;
+    double delta_y = ecef_target.y - ecef_start.y;
+    double delta_z = ecef_target.z - ecef_start.z;
+
     outputData.bearing = calculateBearing(delta_easting, delta_northing);
 
     if (outputData.bearing < 0)
