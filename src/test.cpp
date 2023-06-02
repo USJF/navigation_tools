@@ -15,10 +15,13 @@ int main(int argc, char **argv)
     NavigationCalculator::LLA target_point;
     target_point.latitude = 35.042636;
     target_point.longitude = -86.983825;
-    target_point.alt = 202;
+    target_point.alt = 135;//202;
 
     NavigationCalculator::PolarData data = calculator.calculatePolarData(start_point, target_point);
 
+    std::cout<< data.bearing << "\t" << data.range <<std::endl;
+
+    /*
     NavigationCalculator::LLA lla;
     lla.latitude = 32.436966;
     lla.longitude = -94.797127;
@@ -28,5 +31,5 @@ int main(int argc, char **argv)
     
     std::cout<<std::fixed<<std::setprecision(6)<<std::endl;
     std::cout<<lla.latitude<<"\t"<<lla.longitude<<"\t"<<lla.alt<<std::endl;
-
+    */
 }

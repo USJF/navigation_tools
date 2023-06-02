@@ -4,7 +4,6 @@
 #include "coordinate_converter.hpp"
 #include <vector>
 #include <cmath>
-#include <iostream>
 
 class NavigationCalculator : public CoordinateConverter
 {
@@ -28,6 +27,20 @@ class NavigationCalculator : public CoordinateConverter
     double R0;
     double e;
     double e2;
+
+    double delta_x;
+    double delta_y;
+    double delta_z;
+
+    // Polar Calculation Variables 
+    PolarData output_data;
+    double local_rotation_coefs[3][3];
+    ECEF ecef_start;
+    ECEF ecef_target;
+    double latitude;
+    double longitude;
+    double magnitude;
+    double enu[3];
 
     double radiansToDegrees(double radians);
     double degreesToRadians(double degrees);

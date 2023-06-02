@@ -6,8 +6,6 @@
 #include <iomanip>
 #include <string>
 
-#include <iostream>
-
 #include "mgrs_lookup_functions.hpp"
 
 class CoordinateConverter

@@ -29,34 +29,57 @@ double NavigationCalculator::calculateRe(double latitude)
 
 NavigationCalculator::PolarData NavigationCalculator::calculatePolarData(LLA start_point, LLA target_point)
 {
-    double delta_latitude = degreesToRadians(target_point.latitude - start_point.latitude);
-    double delta_longitude = degreesToRadians(target_point.longitude - start_point.longitude);
-    double delta_altitude = target_point.alt - start_point.alt;
+    //double delta_latitude = degreesToRadians(target_point.latitude - start_point.latitude);
+    //double delta_longitude = degreesToRadians(target_point.longitude - start_point.longitude);
+    //double delta_altitude = target_point.alt - start_point.alt;
 
-    double latitude = degreesToRadians(start_point.latitude);
-    double longitude = degreesToRadians(start_point.longitude);
-    double alt = 0;
+    latitude = degreesToRadians(start_point.latitude);
+    longitude = degreesToRadians(start_point.longitude);
+    //double alt = 0;
 
-    double delta_easting = delta_longitude * (cos(latitude) * (calculateRe(latitude) + alt));
-    double delta_northing = delta_latitude * (calculateRn(latitude) + alt);
+    //double delta_easting = delta_longitude * (cos(latitude) * (calculateRe(latitude) + alt));
+    //double delta_northing = delta_latitude * (calculateRn(latitude) + alt);
 
-    PolarData outputData;
-    outputData.range = sqrt(pow(delta_easting, 2) + pow(delta_northing, 2));
+    latitude = degreesToRadians(start_point.latitude);
+    longitude = degreesToRadians(start_point.longitude);
 
-    ECEF ecef_start = convertLLA2ECEF(start_point);
-    ECEF ecef_target = convertLLA2ECEF(target_point);
-    double delta_x = ecef_target.x - ecef_start.x;
-    double delta_y = ecef_target.y - ecef_start.y;
-    double delta_z = ecef_target.z - ecef_start.z;
+    //output_data.range = sqrt(pow(delta_easting, 2) + pow(delta_northing, 2));
 
-    outputData.bearing = calculateBearing(delta_easting, delta_northing);
+    ecef_start = convertLLA2ECEF(start_point);
+    ecef_target = convertLLA2ECEF(target_point);
 
-    if (outputData.bearing < 0)
+    delta_x = ecef_target.x - ecef_start.x;
+    delta_y = ecef_target.y - ecef_start.y;
+    delta_z = ecef_target.z - ecef_start.z;
+    magnitude = sqrt(pow(delta_x, 2) + pow(delta_y, 2) + pow(delta_z, 2));
+
+    local_rotation_coefs[0][0] = -1 * sin(longitude);
+    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][2] = 0;
+    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
+    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
+    local_rotation_coefs[1][2] = cos(latitude);
+    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
+    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
+    local_rotation_coefs[2][2] = sin(latitude);
+
+    enu[0] = delta_x/magnitude * local_rotation_coefs[0][0] + delta_y/magnitude * local_rotation_coefs[0][1] + delta_z/magnitude * local_rotation_coefs[0][2];
+    enu[1] = delta_x/magnitude * local_rotation_coefs[1][0] + delta_y/magnitude * local_rotation_coefs[1][1] + delta_z/magnitude * local_rotation_coefs[1][2];
+    enu[2] = delta_x/magnitude * local_rotation_coefs[2][0] + delta_y/magnitude * local_rotation_coefs[2][1] + delta_z/magnitude * local_rotation_coefs[2][2];
+
+    output_data.range = magnitude;
+    output_data.bearing = calculateBearing(enu[0], enu[1]);
+
+    //outputData.bearing = calculateBearing(delta_easting, delta_northing);
+
+    //std::cout<<outputData.bearing<<std::endl;
+
+    if (output_data.bearing < 0)
     {
-        outputData.bearing += 360;
+        output_data.bearing += 360;
     }
 
-    return outputData;
+    return output_data;
 }
 
 double NavigationCalculator::degreesToRadians(double degrees)
