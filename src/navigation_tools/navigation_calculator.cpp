@@ -131,3 +131,171 @@ double NavigationCalculator::haversine(double latitude1, double latitude2, doubl
 
     return R0 * 2 * atan2(sqrt(a), sqrt(1-a));
 }
+
+std::string NavigationCalculator::getLocationData()
+{
+    output_string = "";
+    std::string temp;
+    //MGRS
+    output_string = std::to_string(location_mgrs.grid_zone);
+    output_string.append("/");
+    temp = location_mgrs.grid_letter + location_mgrs.false_easting + location_mgrs.false_northing;
+    output_string.append(temp);
+    output_string.append("/");
+    output_string.append(std::to_string(location_mgrs.easting));
+    output_string.append("/");
+    output_string.append(std::to_string(location_mgrs.northing));
+    output_string.append("/");
+    // UTM
+    temp = std::to_string(location_utm.grid_zone) + "/" + std::to_string(location_utm.easting) + "/" + std::to_string(location_utm.northing) + "/";
+    output_string.append(temp);
+    //LLA
+    temp = std::to_string(location_lla.latitude) + "/" + std::to_string(location_lla.longitude) + "/";
+    output_string.append(temp);
+    // LLADMS
+    temp = std::to_string(location_lladms.latitude_degrees) + "/" + std::to_string(abs(location_lladms.latitude_minutes)) + "/" + std::to_string(fabs(location_lladms.latitude_seconds)) + "/";
+    output_string.append(temp);
+    temp = std::to_string(location_lladms.longitude_degrees) + "/" + std::to_string(abs(location_lladms.longitude_minutes)) + "/" + std::to_string(fabs(location_lladms.longitude_seconds)) + "/";
+    output_string.append(temp);
+    //ECEF
+    temp = std::to_string(location_ecef.x) + "/" + std::to_string(location_ecef.y) + "/" + std::to_string(location_ecef.z);
+    output_string.append(temp);
+
+    return output_string;
+}
+
+// Set Location to ECEF Coodinates
+void NavigationCalculator::setLocationECEF(double x, double y, double z)
+{
+    location_ecef.x = x;
+    location_ecef.y = y;
+    location_ecef.z = z;
+
+    location_lla = convertECEF2LLA(location_ecef);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
+    location_lladms = convertLLA2LLADMS(location_lla);
+}
+
+void NavigationCalculator::setLocationECEF(ECEF ecef_coordinates)
+{
+    location_ecef = ecef_coordinates;
+    location_lla = convertECEF2LLA(location_ecef);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
+    location_lladms = convertLLA2LLADMS(location_lla);
+}
+
+// Set Location to LLA Coordinates
+void NavigationCalculator::setLocationLLA(double latitude, double longitude, double alt)
+{
+    location_lla.latitude = latitude;
+    location_lla.longitude = longitude;
+    location_lla.alt = alt;
+
+    location_ecef = convertLLA2ECEF(location_lla);
+    location_lladms = convertLLA2LLADMS(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
+}
+
+void NavigationCalculator::setLocationLLA(LLA lla_coordinates)
+{
+    location_lla = lla_coordinates;
+    location_ecef = convertLLA2ECEF(location_lla);
+    location_lladms = convertLLA2LLADMS(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
+}
+
+// Set Location to LLADMS Coordinates
+void NavigationCalculator::setLocationLLADMS(int latitude_degrees, int latitude_minutes, double latitude_seconds, int longitude_degrees, int longitude_minutes, double longitude_seconds, double alt)
+{
+    location_lladms.latitude_degrees = latitude_degrees;
+    location_lladms.latitude_minutes = latitude_minutes;
+    location_lladms.latitude_seconds = latitude_seconds;
+    location_lladms.longitude_degrees = longitude_degrees;
+    location_lladms.longitude_minutes = longitude_minutes;
+    location_lladms.longitude_seconds = longitude_seconds;
+    location_lladms.alt = alt;
+
+    location_lla = convertLLADMS2LLA(location_lladms);
+    location_ecef = convertLLA2ECEF(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
+}
+
+void NavigationCalculator::setLocationLLADMS(LLADMS lladms_coordinates)
+{
+    location_lladms = lladms_coordinates;
+    location_lla = convertLLADMS2LLA(location_lladms);
+    location_ecef = convertLLA2ECEF(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
+}
+
+// Set Location to MGRS Coordinates
+void NavigationCalculator::setLocationMGRS(double easting, double northing, double alt, int grid_number, std::string grid_letter, std::string false_easting, std::string false_northing)
+{
+    location_mgrs.easting = easting;
+    location_mgrs.northing = northing;
+    location_mgrs.alt = alt;
+    location_mgrs.grid_zone = grid_number;
+    location_mgrs.grid_letter = grid_letter;
+    location_mgrs.false_easting = false_easting;
+    location_mgrs.false_northing = false_northing;
+
+    location_utm = convertMGRS2UTM(location_mgrs);
+    location_lla = convertUTM2LLA(location_utm);
+    location_lladms = convertLLA2LLADMS(location_lla);
+    location_ecef = convertLLA2ECEF(location_lla);
+}
+
+void NavigationCalculator::setLocationMGRS(double easting, double northing, double alt, int grid_number, std::string zone_letters)
+{
+    location_mgrs.easting = easting;
+    location_mgrs.northing = northing;
+    location_mgrs.alt = alt;
+    location_mgrs.grid_zone = grid_number;
+    location_mgrs.grid_letter = zone_letters[0];
+    location_mgrs.false_easting = zone_letters[1];
+    location_mgrs.false_northing = zone_letters[2];
+
+    location_utm = convertMGRS2UTM(location_mgrs);
+    location_lla = convertUTM2LLA(location_utm);
+    location_lladms = convertLLA2LLADMS(location_lla);
+    location_ecef = convertLLA2ECEF(location_lla);
+}
+
+void NavigationCalculator::setLocationMGRS(MGRS mgrs_coordinates)
+{
+    location_mgrs = mgrs_coordinates;
+    location_utm = convertMGRS2UTM(location_mgrs);
+    location_lla = convertUTM2LLA(location_utm);
+    location_lladms = convertLLA2LLADMS(location_lla);
+    location_ecef = convertLLA2ECEF(location_lla);
+}
+
+// Set Location to UTM Coordinates
+void NavigationCalculator::setLocationUTM(double easting, double northing, double alt, int grid_zone)
+{
+    location_utm.easting = easting;
+    location_utm.northing = northing;
+    location_utm.alt = alt;
+    location_utm.grid_zone = grid_zone;
+
+    location_mgrs = convertUTM2MGRS(location_utm);
+    location_lla = convertUTM2LLA(location_utm);
+    location_lladms = convertLLA2LLADMS(location_lla);
+    location_ecef = convertLLA2ECEF(location_lla);
+}
+
+void NavigationCalculator::setLocationUTM(UTM utm_coordinates)
+{
+    location_utm = utm_coordinates;
+    location_mgrs = convertUTM2MGRS(location_utm);
+    location_lla = convertUTM2LLA(location_utm);
+    location_lladms = convertLLA2LLADMS(location_lla);
+    location_ecef = convertLLA2ECEF(location_lla);
+}
+

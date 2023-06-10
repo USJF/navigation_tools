@@ -381,92 +381,6 @@ CoordinateConverter::LLA CoordinateConverter::convertECEF2LLA(CoordinateConverte
     N = a/sqrt(1-e2*pow(sin(lat_rad), 2));
     lla_coords.alt = s * cos(lat_rad) + (ecef_in.z + e2 * N * sin(lat_rad)) * sin(lat_rad) - N;
 
-//second attempt
-    /*p = sqrt(pow(ecef_in.x, 2) + pow(ecef_in.y, 2));
-
-    lla_coords.longitude = atan2(ecef_in.y, ecef_in.x) * rad2deg;
-
-    lla_coords.latitude = atan2(ecef_in.z, (p*(1.0-e2)));
-
-    old = lla_coords.latitude;
-    converge = false;
-    count = 0;
-    
-    while (!converge)
-    {
-        old = lla_coords.latitude;
-        N = a / sqrt(1.0-e2*pow(sin(lla_coords.latitude), 2));
-        lla_coords.alt = (p/cos(lla_coords.latitude)) - N;
-        lla_coords.latitude = atan2(ecef_in.z, (p*(1.0-e2*pow(sin(lla_coords.latitude), 2))));
-
-        if (abs(lla_coords.latitude - old) * rad2deg < error_threshold)
-        {
-            converge = true;
-        }
-        else if(count > 100)
-        {
-            converge = true;
-        }
-        count++;
-    }
-
-    lla_coords.latitude = lla_coords.latitude * rad2deg;
-
-    N = a / sqrt(1.0-e2*pow(sin(lla_coords.latitude*deg2rad), 2));
-
-    lla_coords.alt = (ecef_in.z/sin(lla_coords.latitude*deg2rad)) - ((1-e2)*N); */
-
-// 1st Attempt
-
-    /*
-    rho = sqrt(ecef_in.x * ecef_in.x + ecef_in.y * ecef_in.y);
-
-    u = a * rho;
-    v = b * ecef_in.z * (1.0 + (b * e2 / (1.0 - e2)) / sqrt(ecef_in.z * ecef_in.z + rho * rho));
-
-    // std::cout<<b<<"\t"<<ecef_in.z<<"\t"<<e2<<"\t"<<rho<<std::endl;
-
-    cosbeta = sign(u) / sqrt(1.0 + pow(v / u, 2));
-    sinbeta = sign(v) / sqrt(1.0 + pow(u / v, 2));
-
-    // std::cout<<rho<<"\t"<<u<<"\t"<<v<<"\t"<<cosbeta<<"\t"<<sinbeta<<std::endl;
-
-    count = 0;
-    converge = false;
-    while (!converge)
-    {
-
-        cosprev = cosbeta;
-        sinprev = sinbeta;
-        u = rho - a * e2 * pow(cosbeta, 3);
-        v = ecef_in.z + (b * e2 / (1 - e2)) * pow(sinbeta, 3);
-
-        cosbeta = sign(a * u) / sqrt(1.0 + pow(b * v / (a * u), 2));
-        sinbeta = sign(b * v) / sqrt(1.0 + pow(a * u / (b * v), 2));
-
-        error = sqrt(pow(cosbeta - cosprev, 2) + pow(sinbeta - sinprev, 2));
-        if (error < error_threshold)
-        {
-            converge = true;
-        }
-        count++;
-        if (count > 100)
-        {
-            converge = true;
-        }
-        // std::cout<<count<<": "<<error<<std::endl;
-    }
-
-    lla_coords.latitude = atan2(v, u);
-    cosbeta = cos(lla_coords.latitude);
-    sinbeta = sin(lla_coords.latitude);
-
-    lla_coords.latitude = lla_coords.latitude * rad2deg;
-
-    N = a / sqrt(1 - e2 * sinbeta * sinbeta);
-    lla_coords.alt = rho * cosbeta + (ecef_in.z + e2 * N * sinbeta) * sinbeta - N;
-    */
-
     return lla_coords;
 }
 
@@ -478,7 +392,6 @@ CoordinateConverter::ECEF CoordinateConverter::convertLLA2ECEF(CoordinateConvert
 
     ecef_coords.x = (N + lla_in.alt) * cos(lla_in.latitude * deg2rad) * cos(lla_in.longitude * deg2rad);
     ecef_coords.y = (N + lla_in.alt) * cos(lla_in.latitude * deg2rad) * sin(lla_in.longitude * deg2rad);
-    //ecef_coords.z = ((pow(a, 2) / pow(b, 2)) * N + lla_in.alt) * sin(lla_in.latitude * deg2rad);
     ecef_coords.z = ((1-e2)*N + lla_in.alt) * sin(lla_in.latitude * deg2rad);
 
     return ecef_coords;
