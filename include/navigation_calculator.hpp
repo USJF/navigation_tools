@@ -13,7 +13,8 @@ class NavigationCalculator : public CoordinateConverter
 
     struct PolarData
     {
-        double range;
+        double displacement;
+        double haversine;
         double bearing;
     };
 
@@ -21,6 +22,7 @@ class NavigationCalculator : public CoordinateConverter
 
     double calculateRn(double latitude);
     double calculateRe(double latitude);
+    double haversine(double latitude1, double latitude2, double longitude1, double longitude2);
 
     private:
     double Rp;

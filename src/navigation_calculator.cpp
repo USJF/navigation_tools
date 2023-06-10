@@ -2,6 +2,7 @@
 
 NavigationCalculator::NavigationCalculator()
 {
+    // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
     e2 = 1 - ((Rp*Rp)/(R0 * R0));
@@ -29,30 +30,20 @@ double NavigationCalculator::calculateRe(double latitude)
 
 NavigationCalculator::PolarData NavigationCalculator::calculatePolarData(LLA start_point, LLA target_point)
 {
-    //double delta_latitude = degreesToRadians(target_point.latitude - start_point.latitude);
-    //double delta_longitude = degreesToRadians(target_point.longitude - start_point.longitude);
-    //double delta_altitude = target_point.alt - start_point.alt;
-
-    latitude = degreesToRadians(start_point.latitude);
-    longitude = degreesToRadians(start_point.longitude);
-    //double alt = 0;
-
-    //double delta_easting = delta_longitude * (cos(latitude) * (calculateRe(latitude) + alt));
-    //double delta_northing = delta_latitude * (calculateRn(latitude) + alt);
-
     latitude = degreesToRadians(start_point.latitude);
     longitude = degreesToRadians(start_point.longitude);
 
-    //output_data.range = sqrt(pow(delta_easting, 2) + pow(delta_northing, 2));
-
+    // Convert Points to ECEF
     ecef_start = convertLLA2ECEF(start_point);
     ecef_target = convertLLA2ECEF(target_point);
 
+    // Calculate Vector Characteristics in ECEF
     delta_x = ecef_target.x - ecef_start.x;
     delta_y = ecef_target.y - ecef_start.y;
     delta_z = ecef_target.z - ecef_start.z;
     magnitude = sqrt(pow(delta_x, 2) + pow(delta_y, 2) + pow(delta_z, 2));
 
+    // Create ECEF to ENU Rotation Matrix
     local_rotation_coefs[0][0] = -1 * sin(longitude);
     local_rotation_coefs[0][1] = cos(longitude);
     local_rotation_coefs[0][2] = 0;
@@ -63,16 +54,16 @@ NavigationCalculator::PolarData NavigationCalculator::calculatePolarData(LLA sta
     local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
     local_rotation_coefs[2][2] = sin(latitude);
 
+    // Rotate ECEF Unit Vector to ENU
     enu[0] = delta_x/magnitude * local_rotation_coefs[0][0] + delta_y/magnitude * local_rotation_coefs[0][1] + delta_z/magnitude * local_rotation_coefs[0][2];
     enu[1] = delta_x/magnitude * local_rotation_coefs[1][0] + delta_y/magnitude * local_rotation_coefs[1][1] + delta_z/magnitude * local_rotation_coefs[1][2];
     enu[2] = delta_x/magnitude * local_rotation_coefs[2][0] + delta_y/magnitude * local_rotation_coefs[2][1] + delta_z/magnitude * local_rotation_coefs[2][2];
 
-    output_data.range = magnitude;
+    // Store Outputs
+    output_data.displacement = magnitude;
     output_data.bearing = calculateBearing(enu[0], enu[1]);
 
-    //outputData.bearing = calculateBearing(delta_easting, delta_northing);
-
-    //std::cout<<outputData.bearing<<std::endl;
+    output_data.haversine = haversine(start_point.latitude, target_point.latitude, start_point.longitude, target_point.longitude);
 
     if (output_data.bearing < 0)
     {
@@ -94,6 +85,7 @@ double NavigationCalculator::radiansToDegrees(double radians)
 
 double NavigationCalculator::calculateBearing(double delta_east,  double delta_north)
 {
+    // Calculate ENU Bearing from Rotated Unit Vector
     double target_bearing = atan(delta_east/delta_north);
     if (delta_east<0)
     {
@@ -125,4 +117,17 @@ double NavigationCalculator::calculateBearing(double delta_east,  double delta_n
     }
 
     return radiansToDegrees(relative_bearing);
+}
+
+double NavigationCalculator::haversine(double latitude1, double latitude2, double longitude1, double longitude2)
+{
+    // Ground Distance Calculation Using Haversine Formula
+    latitude1 = degreesToRadians(latitude1);
+    latitude2 = degreesToRadians(latitude2);
+    double delta_latitude = latitude2 - latitude1;
+
+    double delta_longitude = degreesToRadians(longitude2 - longitude1);
+    double a = pow(sin(delta_latitude/2), 2) + cos(latitude1) * cos(latitude2) * pow(sin(delta_longitude/2), 2);
+
+    return R0 * 2 * atan2(sqrt(a), sqrt(1-a));
 }
