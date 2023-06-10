@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     start_point.alt = 135;
 
     NavigationCalculator::LLA target_point;
-    target_point.latitude = 55.042636;
+    target_point.latitude = 35.042636;
     target_point.longitude = -86.983825;
     target_point.alt = 135;//202;
 
