@@ -7,6 +7,63 @@ NavigationCalculator::NavigationCalculator()
     Rp = 6356752.3142;
     e2 = 1 - ((Rp*Rp)/(R0 * R0));
     e = sqrt(e2);
+
+    setLocationLLA(0.0, 0.0, 0.0);
+}
+
+NavigationCalculator::NavigationCalculator(LLA lla_initial_position)
+{
+    // Earth Modeling Constants
+    R0 = 6378137.0;
+    Rp = 6356752.3142;
+    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e = sqrt(e2);
+
+    setLocationLLA(lla_initial_position);
+}
+
+NavigationCalculator::NavigationCalculator(ECEF ecef_initial_position)
+{
+    // Earth Modeling Constants
+    R0 = 6378137.0;
+    Rp = 6356752.3142;
+    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e = sqrt(e2);
+
+    setLocationECEF(ecef_initial_position);
+}
+
+NavigationCalculator::NavigationCalculator(UTM utm_initial_position)
+{
+    // Earth Modeling Constants
+    R0 = 6378137.0;
+    Rp = 6356752.3142;
+    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e = sqrt(e2);
+
+    setLocationUTM(utm_initial_position);
+}
+
+NavigationCalculator::NavigationCalculator(LLADMS lladms_initial_position)
+{
+    // Earth Modeling Constants
+    R0 = 6378137.0;
+    Rp = 6356752.3142;
+    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e = sqrt(e2);
+
+    setLocationLLADMS(lladms_initial_position);
+}
+
+NavigationCalculator::NavigationCalculator(MGRS mgrs_initial_position)
+{
+    // Earth Modeling Constants
+    R0 = 6378137.0;
+    Rp = 6356752.3142;
+    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e = sqrt(e2);
+
+    setLocationMGRS(mgrs_initial_position);
 }
 
 NavigationCalculator::~NavigationCalculator()
@@ -158,7 +215,7 @@ std::string NavigationCalculator::getLocationData()
     temp = std::to_string(location_lladms.longitude_degrees) + "/" + std::to_string(abs(location_lladms.longitude_minutes)) + "/" + std::to_string(fabs(location_lladms.longitude_seconds)) + "/";
     output_string.append(temp);
     //ECEF
-    temp = std::to_string(location_ecef.x) + "/" + std::to_string(location_ecef.y) + "/" + std::to_string(location_ecef.z);
+    temp = std::to_string(location_ecef.x) + "/" + std::to_string(location_ecef.y) + "/" + std::to_string(location_ecef.z) + "/" + std::to_string(location_lla.alt);
     output_string.append(temp);
 
     return output_string;
@@ -299,3 +356,254 @@ void NavigationCalculator::setLocationUTM(UTM utm_coordinates)
     location_ecef = convertLLA2ECEF(location_lla);
 }
 
+NavigationCalculator::Vector3 NavigationCalculator::calculateLocalRPV(LLA start_point, LLA target_point)
+{
+    latitude = degreesToRadians(start_point.latitude);
+    longitude = degreesToRadians(start_point.longitude);
+
+    // Convert Points to ECEF
+    ecef_start = convertLLA2ECEF(start_point);
+    ecef_target = convertLLA2ECEF(target_point);
+
+    // Calculate Vector Characteristics in ECEF
+    delta_x = ecef_target.x - ecef_start.x;
+    delta_y = ecef_target.y - ecef_start.y;
+    delta_z = ecef_target.z - ecef_start.z;
+    magnitude = sqrt(pow(delta_x, 2) + pow(delta_y, 2) + pow(delta_z, 2));
+
+    // Create ECEF to ENU Rotation Matrix
+    local_rotation_coefs[0][0] = -1 * sin(longitude);
+    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][2] = 0;
+    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
+    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
+    local_rotation_coefs[1][2] = cos(latitude);
+    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
+    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
+    local_rotation_coefs[2][2] = sin(latitude);
+
+    // Rotate ECEF Unit Vector to ENU
+    enu[0] = delta_x * local_rotation_coefs[0][0] + delta_y * local_rotation_coefs[0][1] + delta_z * local_rotation_coefs[0][2];
+    enu[1] = delta_x * local_rotation_coefs[1][0] + delta_y * local_rotation_coefs[1][1] + delta_z * local_rotation_coefs[1][2];
+    enu[2] = delta_x * local_rotation_coefs[2][0] + delta_y * local_rotation_coefs[2][1] + delta_z * local_rotation_coefs[2][2];
+
+    Vector3 local_rpv;
+    local_rpv.x = enu[0];
+    local_rpv.y = enu[1];
+    local_rpv.z = enu[2];
+
+    return local_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::calculateLocalRPV(ECEF start_point, ECEF target_point)
+{
+    LLA lla_coordinates = convertECEF2LLA(start_point);
+    latitude = degreesToRadians(lla_coordinates.latitude);
+    longitude = degreesToRadians(lla_coordinates.longitude);
+
+    // Convert Points to ECEF
+    ecef_start = start_point;
+    ecef_target = target_point;
+
+    // Calculate Vector Characteristics in ECEF
+    delta_x = ecef_target.x - ecef_start.x;
+    delta_y = ecef_target.y - ecef_start.y;
+    delta_z = ecef_target.z - ecef_start.z;
+    magnitude = sqrt(pow(delta_x, 2) + pow(delta_y, 2) + pow(delta_z, 2));
+
+    // Create ECEF to ENU Rotation Matrix
+    local_rotation_coefs[0][0] = -1 * sin(longitude);
+    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][2] = 0;
+    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
+    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
+    local_rotation_coefs[1][2] = cos(latitude);
+    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
+    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
+    local_rotation_coefs[2][2] = sin(latitude);
+
+    // Rotate ECEF Unit Vector to ENU
+    enu[0] = delta_x * local_rotation_coefs[0][0] + delta_y * local_rotation_coefs[0][1] + delta_z * local_rotation_coefs[0][2];
+    enu[1] = delta_x * local_rotation_coefs[1][0] + delta_y * local_rotation_coefs[1][1] + delta_z * local_rotation_coefs[1][2];
+    enu[2] = delta_x * local_rotation_coefs[2][0] + delta_y * local_rotation_coefs[2][1] + delta_z * local_rotation_coefs[2][2];
+
+    Vector3 local_rpv;
+    local_rpv.x = enu[0];
+    local_rpv.y = enu[1];
+    local_rpv.z = enu[2];
+
+    return local_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::calculateLocalRPV(LLADMS start_point, LLADMS target_point)
+{
+    LLA lla_coordinates = convertLLADMS2LLA(start_point);
+
+    latitude = degreesToRadians(lla_coordinates.latitude);
+    longitude = degreesToRadians(lla_coordinates.longitude);
+
+    // Convert Points to ECEF
+    ecef_start = convertLLA2ECEF(lla_coordinates);
+    ecef_target = convertLLA2ECEF(convertLLADMS2LLA(target_point));
+
+    // Calculate Vector Characteristics in ECEF
+    delta_x = ecef_target.x - ecef_start.x;
+    delta_y = ecef_target.y - ecef_start.y;
+    delta_z = ecef_target.z - ecef_start.z;
+    magnitude = sqrt(pow(delta_x, 2) + pow(delta_y, 2) + pow(delta_z, 2));
+
+    // Create ECEF to ENU Rotation Matrix
+    local_rotation_coefs[0][0] = -1 * sin(longitude);
+    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][2] = 0;
+    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
+    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
+    local_rotation_coefs[1][2] = cos(latitude);
+    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
+    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
+    local_rotation_coefs[2][2] = sin(latitude);
+
+    // Rotate ECEF Unit Vector to ENU
+    enu[0] = delta_x * local_rotation_coefs[0][0] + delta_y * local_rotation_coefs[0][1] + delta_z * local_rotation_coefs[0][2];
+    enu[1] = delta_x * local_rotation_coefs[1][0] + delta_y * local_rotation_coefs[1][1] + delta_z * local_rotation_coefs[1][2];
+    enu[2] = delta_x * local_rotation_coefs[2][0] + delta_y * local_rotation_coefs[2][1] + delta_z * local_rotation_coefs[2][2];
+
+    Vector3 local_rpv;
+    local_rpv.x = enu[0];
+    local_rpv.y = enu[1];
+    local_rpv.z = enu[2];
+
+    return local_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::calculateLocalRPV(UTM start_point, UTM target_point)
+{
+    LLA lla_start_point = convertUTM2LLA(start_point);
+    LLA lla_target_point = convertUTM2LLA(target_point);
+
+    latitude = degreesToRadians(lla_start_point.latitude);
+    longitude = degreesToRadians(lla_start_point.longitude);
+
+    // Convert Points to ECEF
+    ecef_start = convertLLA2ECEF(lla_start_point);
+    ecef_target = convertLLA2ECEF(lla_target_point);
+
+    // Calculate Vector Characteristics in ECEF
+    delta_x = ecef_target.x - ecef_start.x;
+    delta_y = ecef_target.y - ecef_start.y;
+    delta_z = ecef_target.z - ecef_start.z;
+    magnitude = sqrt(pow(delta_x, 2) + pow(delta_y, 2) + pow(delta_z, 2));
+
+    // Create ECEF to ENU Rotation Matrix
+    local_rotation_coefs[0][0] = -1 * sin(longitude);
+    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][2] = 0;
+    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
+    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
+    local_rotation_coefs[1][2] = cos(latitude);
+    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
+    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
+    local_rotation_coefs[2][2] = sin(latitude);
+
+    // Rotate ECEF Unit Vector to ENU
+    enu[0] = delta_x * local_rotation_coefs[0][0] + delta_y * local_rotation_coefs[0][1] + delta_z * local_rotation_coefs[0][2];
+    enu[1] = delta_x * local_rotation_coefs[1][0] + delta_y * local_rotation_coefs[1][1] + delta_z * local_rotation_coefs[1][2];
+    enu[2] = delta_x * local_rotation_coefs[2][0] + delta_y * local_rotation_coefs[2][1] + delta_z * local_rotation_coefs[2][2];
+
+    Vector3 local_rpv;
+    local_rpv.x = enu[0];
+    local_rpv.y = enu[1];
+    local_rpv.z = enu[2];
+
+    return local_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::calculateLocalRPV(MGRS start_point, MGRS target_point)
+{
+    LLA lla_start_point = convertMGRS2LLA(start_point);
+    LLA lla_target_point = convertMGRS2LLA(target_point);
+
+    latitude = degreesToRadians(lla_start_point.latitude);
+    longitude = degreesToRadians(lla_start_point.longitude);
+
+    // Convert Points to ECEF
+    ecef_start = convertLLA2ECEF(lla_start_point);
+    ecef_target = convertLLA2ECEF(lla_target_point);
+
+    // Calculate Vector Characteristics in ECEF
+    delta_x = ecef_target.x - ecef_start.x;
+    delta_y = ecef_target.y - ecef_start.y;
+    delta_z = ecef_target.z - ecef_start.z;
+    magnitude = sqrt(pow(delta_x, 2) + pow(delta_y, 2) + pow(delta_z, 2));
+
+    // Create ECEF to ENU Rotation Matrix
+    local_rotation_coefs[0][0] = -1 * sin(longitude);
+    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][2] = 0;
+    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
+    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
+    local_rotation_coefs[1][2] = cos(latitude);
+    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
+    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
+    local_rotation_coefs[2][2] = sin(latitude);
+
+    // Rotate ECEF Unit Vector to ENU
+    enu[0] = delta_x * local_rotation_coefs[0][0] + delta_y * local_rotation_coefs[0][1] + delta_z * local_rotation_coefs[0][2];
+    enu[1] = delta_x * local_rotation_coefs[1][0] + delta_y * local_rotation_coefs[1][1] + delta_z * local_rotation_coefs[1][2];
+    enu[2] = delta_x * local_rotation_coefs[2][0] + delta_y * local_rotation_coefs[2][1] + delta_z * local_rotation_coefs[2][2];
+
+    Vector3 local_rpv;
+    local_rpv.x = enu[0];
+    local_rpv.y = enu[1];
+    local_rpv.z = enu[2];
+
+    return local_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(LLA lla_target_coordinates, double heading)
+{
+    Vector3 local_rpv = calculateLocalRPV(location_lla, lla_target_coordinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(LLA lla_target_coordinates, double heading, LLA lla_start_coordinates)
+{
+    Vector3 local_rpv = calculateLocalRPV(lla_start_coordinates, lla_target_coordinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(ECEF ecef_target_coordinates, double heading)
+{
+    Vector3 local_rpv = calculateLocalRPV(location_ecef, ecef_target_coordinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(ECEF ecef_target_coordinates, double heading, ECEF ecef_start_coordinates)
+{
+    Vector3 local_rpv = calculateLocalRPV(ecef_start_coordinates, ecef_target_coordinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}

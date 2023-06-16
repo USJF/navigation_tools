@@ -10,6 +10,12 @@ class NavigationCalculator : public CoordinateConverter
 {
     public:
     NavigationCalculator();
+    NavigationCalculator(LLA lla_initial_position);
+    NavigationCalculator(ECEF ecef_initial_position);
+    NavigationCalculator(UTM utm_initial_position);
+    NavigationCalculator(LLADMS lladms_initial_position);
+    NavigationCalculator(MGRS mgrs_initial_position);
+
     ~NavigationCalculator();
 
     struct PolarData
@@ -17,6 +23,13 @@ class NavigationCalculator : public CoordinateConverter
         double displacement;
         double haversine;
         double bearing;
+    };
+
+    struct Vector3
+    {
+        double x;
+        double y;
+        double z;
     };
 
     PolarData calculatePolarData(LLA start_point, LLA target_point);
@@ -43,6 +56,17 @@ class NavigationCalculator : public CoordinateConverter
     
     void setLocationLLADMS(int latitude_degrees, int latitude_minutes, double latitude_seconds, int longitude_degrees, int longitude_minutes, double longitude_seconds, double alt);
     void setLocationLLADMS(LLADMS lladms_coordinates);
+
+    Vector3 getBodyRPV(LLA lla_target_coordinates, double heading);
+    Vector3 getBodyRPV(LLA lla_target_coordinates, double heading, LLA lla_start_coordinates);
+    Vector3 getBodyRPV(ECEF ecef_target_coordinates, double heading);
+    Vector3 getBodyRPV(ECEF ecef_target_coordinates, double heading, ECEF ecef_start_coordinates);
+    Vector3 getBodyRPV(LLADMS lladms_target_coordinates, double heading);
+    Vector3 getBodyRPV(LLADMS lladms_target_coordinates, double heading, LLADMS lladms_start_coordinates);
+    Vector3 getBodyRPV(UTM utm_target_coordinates, double heading);
+    Vector3 getBodyRPV(UTM utm_target_coordinates, double heading, UTM utm_start_coordinates);
+    Vector3 getBodyRPV(MGRS mgrs_target_coordinates, double heading);
+    Vector3 getBodyRPV(MGRS mgrs_target_coordinates, double heading, MGRS mgrs_start_coordinates);
 
     private:
     double Rp;
@@ -73,6 +97,12 @@ class NavigationCalculator : public CoordinateConverter
     double radiansToDegrees(double radians);
     double degreesToRadians(double degrees);
     double calculateBearing(double delta_east, double delta_north);
+
+    Vector3 calculateLocalRPV(LLA start_point, LLA target_point);
+    Vector3 calculateLocalRPV(ECEF start_point, ECEF target_point);
+    Vector3 calculateLocalRPV(LLADMS start_point, LLADMS target_point);
+    Vector3 calculateLocalRPV(UTM start_point, UTM target_point);
+    Vector3 calculateLocalRPV(MGRS start_point, MGRS target_point);
 };
 
 #endif

@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 
     NavigationCalculator::LLA target_point;
     target_point.latitude = 35.042636;
-    target_point.longitude = -86.983825;
+    target_point.longitude = start_point.longitude;//-86.983825;
     target_point.alt = 135;//202;
 
     NavigationCalculator::PolarData data = calculator.calculatePolarData(start_point, target_point);
@@ -32,4 +32,7 @@ int main(int argc, char **argv)
     std::cout<<std::fixed<<std::setprecision(6)<<std::endl;
     std::cout<<lla.latitude<<"\t"<<lla.longitude<<"\t"<<lla.alt<<std::endl;
     */
+
+   NavigationCalculator::Vector3 body_rpv = calculator.getBodyRPV(start_point, 0, target_point);
+   std::cout << body_rpv.x << '\t' << body_rpv.y << '\t' << body_rpv.z << std::endl;
 }
