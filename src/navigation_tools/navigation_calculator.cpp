@@ -607,7 +607,79 @@ NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(ECEF ecef_target_
     return body_rpv;
 }
 
-NavigationCalculator::LLA NavigationCalculator::findLocationFromPolarData(LLA lla_start_coordinates, double distance, double bearing)
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(LLADMS lladms_target_coordiantes, double heading)
+{
+    Vector3 local_rpv = calculateLocalRPV(location_lladms, lladms_target_coordiantes);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(LLADMS lladms_target_coordinates, double heading, LLADMS lladms_start_coordinates)
+{
+    Vector3 local_rpv = calculateLocalRPV(lladms_start_coordinates, lladms_target_coordinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(UTM utm_target_coodinates, double heading)
+{
+    Vector3 local_rpv = calculateLocalRPV(location_utm, utm_target_coodinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(UTM utm_target_coordinates, double heading, UTM utm_start_coordinates)
+{
+    Vector3 local_rpv = calculateLocalRPV(utm_start_coordinates, utm_target_coordinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(MGRS mgrs_target_coordinates, double heading)
+{
+    Vector3 local_rpv = calculateLocalRPV(location_mgrs, mgrs_target_coordinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(MGRS mgrs_target_coordinates, double heading, MGRS mgrs_start_coordinates)
+{
+    Vector3 local_rpv = calculateLocalRPV(mgrs_start_coordinates, mgrs_target_coordinates);
+    Vector3 body_rpv;
+
+    body_rpv.x = sin(heading) * local_rpv.x + cos(heading) * local_rpv.y;
+    body_rpv.y = cos(heading) * local_rpv.x - sin(heading) * local_rpv.y;
+    body_rpv.z = -1 * local_rpv.z;
+
+    return body_rpv;
+}
+
+NavigationCalculator::LLA NavigationCalculator::calculateLocation(LLA lla_start_coordinates, double distance, double bearing)
 {
     LLA lla_target_coordinates;
     LLA reference_coordinates = lla_start_coordinates;
@@ -666,4 +738,33 @@ NavigationCalculator::LLA NavigationCalculator::findLocationFromPolarData(LLA ll
     }
 
     return lla_target_coordinates;
+}
+
+NavigationCalculator::LLA NavigationCalculator::findLocationFromPolarData(LLA lla_start_coordinates, double distance, double bearing)
+{
+    return calculateLocation(lla_start_coordinates, distance, bearing);
+}
+
+NavigationCalculator::ECEF NavigationCalculator::findLocationFromPolarData(ECEF ecef_start_coordiantes, double distance, double bearing)
+{
+    LLA lla_start_coodinates = convertECEF2LLA(ecef_start_coordiantes);
+    return convertLLA2ECEF(calculateLocation(lla_start_coodinates, distance, bearing));
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::findLocationFromPolarData(LLADMS lladms_start_coordinates, double distance, double bearing)
+{
+    LLA lla_start_coordinates = convertLLADMS2LLA(lladms_start_coordinates);
+    return convertLLA2LLADMS(calculateLocation(lla_start_coordinates, distance, bearing));
+}
+
+NavigationCalculator::UTM NavigationCalculator::findLocationFromPolarData(UTM utm_start_coordinates, double distance, double bearing)
+{
+    LLA lla_start_coordinates = convertUTM2LLA(utm_start_coordinates);
+    return convertLLA2UTM(calculateLocation(lla_start_coordinates, distance, bearing));
+}
+
+NavigationCalculator::MGRS NavigationCalculator::findLocationFromPolarData(MGRS mgrs_start_coordinates, double distance, double bearing)
+{
+    LLA lla_start_coordinates = convertMGRS2LLA(mgrs_start_coordinates);
+    return convertLLA2MGRS(calculateLocation(lla_start_coordinates, distance, bearing));
 }

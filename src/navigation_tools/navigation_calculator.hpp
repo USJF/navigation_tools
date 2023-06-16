@@ -70,7 +70,13 @@ class NavigationCalculator : public CoordinateConverter
     Vector3 getBodyRPV(MGRS mgrs_target_coordinates, double heading);
     Vector3 getBodyRPV(MGRS mgrs_target_coordinates, double heading, MGRS mgrs_start_coordinates);
 
+    LLA calculateLocation(LLA lla_start_coordinates, double distance, double bearing);
+
     LLA findLocationFromPolarData(LLA lla_start_coordinates, double distance, double bearing);
+    ECEF findLocationFromPolarData(ECEF ecef_start_coordinates, double distance, double bearing);
+    LLADMS findLocationFromPolarData(LLADMS lladms_start_coordinates, double distance, double bearing);
+    UTM findLocationFromPolarData(UTM utm_start_coordinates, double distance, double bearing);
+    MGRS findLocationFromPolarData(MGRS mgrs_start_coordinates, double distance, double bearing);
 
     private:
     double Rp;
