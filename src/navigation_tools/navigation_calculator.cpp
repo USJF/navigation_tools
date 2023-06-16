@@ -5,7 +5,7 @@ NavigationCalculator::NavigationCalculator()
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e2 = 1 - ((Rp * Rp) / (R0 * R0));
     e = sqrt(e2);
 
     setLocationLLA(0.0, 0.0, 0.0);
@@ -16,7 +16,7 @@ NavigationCalculator::NavigationCalculator(LLA lla_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e2 = 1 - ((Rp * Rp) / (R0 * R0));
     e = sqrt(e2);
 
     setLocationLLA(lla_initial_position);
@@ -27,7 +27,7 @@ NavigationCalculator::NavigationCalculator(ECEF ecef_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e2 = 1 - ((Rp * Rp) / (R0 * R0));
     e = sqrt(e2);
 
     setLocationECEF(ecef_initial_position);
@@ -38,7 +38,7 @@ NavigationCalculator::NavigationCalculator(UTM utm_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e2 = 1 - ((Rp * Rp) / (R0 * R0));
     e = sqrt(e2);
 
     setLocationUTM(utm_initial_position);
@@ -49,7 +49,7 @@ NavigationCalculator::NavigationCalculator(LLADMS lladms_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e2 = 1 - ((Rp * Rp) / (R0 * R0));
     e = sqrt(e2);
 
     setLocationLLADMS(lladms_initial_position);
@@ -60,7 +60,7 @@ NavigationCalculator::NavigationCalculator(MGRS mgrs_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp*Rp)/(R0 * R0));
+    e2 = 1 - ((Rp * Rp) / (R0 * R0));
     e = sqrt(e2);
 
     setLocationMGRS(mgrs_initial_position);
@@ -68,15 +68,14 @@ NavigationCalculator::NavigationCalculator(MGRS mgrs_initial_position)
 
 NavigationCalculator::~NavigationCalculator()
 {
-
 }
 
 double NavigationCalculator::calculateRn(double latitude)
 {
     double num = (1 - e2) * R0;
 
-    double den = pow(1 - (e2 * pow(sin(latitude), 2)), 3/2);
-    return num/den;
+    double den = pow(1 - (e2 * pow(sin(latitude), 2)), 3 / 2);
+    return num / den;
 }
 
 double NavigationCalculator::calculateRe(double latitude)
@@ -112,9 +111,9 @@ NavigationCalculator::PolarData NavigationCalculator::calculatePolarData(LLA sta
     local_rotation_coefs[2][2] = sin(latitude);
 
     // Rotate ECEF Unit Vector to ENU
-    enu[0] = delta_x/magnitude * local_rotation_coefs[0][0] + delta_y/magnitude * local_rotation_coefs[0][1] + delta_z/magnitude * local_rotation_coefs[0][2];
-    enu[1] = delta_x/magnitude * local_rotation_coefs[1][0] + delta_y/magnitude * local_rotation_coefs[1][1] + delta_z/magnitude * local_rotation_coefs[1][2];
-    enu[2] = delta_x/magnitude * local_rotation_coefs[2][0] + delta_y/magnitude * local_rotation_coefs[2][1] + delta_z/magnitude * local_rotation_coefs[2][2];
+    enu[0] = delta_x / magnitude * local_rotation_coefs[0][0] + delta_y / magnitude * local_rotation_coefs[0][1] + delta_z / magnitude * local_rotation_coefs[0][2];
+    enu[1] = delta_x / magnitude * local_rotation_coefs[1][0] + delta_y / magnitude * local_rotation_coefs[1][1] + delta_z / magnitude * local_rotation_coefs[1][2];
+    enu[2] = delta_x / magnitude * local_rotation_coefs[2][0] + delta_y / magnitude * local_rotation_coefs[2][1] + delta_z / magnitude * local_rotation_coefs[2][2];
 
     // Store Outputs
     output_data.displacement = magnitude;
@@ -140,37 +139,37 @@ double NavigationCalculator::radiansToDegrees(double radians)
     return radians * 180.0 / M_PI;
 }
 
-double NavigationCalculator::calculateBearing(double delta_east,  double delta_north)
+double NavigationCalculator::calculateBearing(double delta_east, double delta_north)
 {
     // Calculate ENU Bearing from Rotated Unit Vector
-    double target_bearing = atan(delta_east/delta_north);
-    if (delta_east<0)
+    double target_bearing = atan(delta_east / delta_north);
+    if (delta_east < 0)
     {
-        if (delta_north<0)
+        if (delta_north < 0)
         {
             target_bearing += M_PI;
         }
         else
         {
-            target_bearing += 2*M_PI;
+            target_bearing += 2 * M_PI;
         }
     }
     else
     {
-        if (delta_north<0)
+        if (delta_north < 0)
         {
             target_bearing += M_PI;
         }
         else
         {
-            //do nothing
+            // do nothing
         }
     }
-    
+
     double relative_bearing = target_bearing;
-    if(relative_bearing>M_PI)
+    if (relative_bearing > M_PI)
     {
-        relative_bearing += -2*M_PI;
+        relative_bearing += -2 * M_PI;
     }
 
     return radiansToDegrees(relative_bearing);
@@ -184,16 +183,16 @@ double NavigationCalculator::haversine(double latitude1, double latitude2, doubl
     double delta_latitude = latitude2 - latitude1;
 
     double delta_longitude = degreesToRadians(longitude2 - longitude1);
-    double a = pow(sin(delta_latitude/2), 2) + cos(latitude1) * cos(latitude2) * pow(sin(delta_longitude/2), 2);
+    double a = pow(sin(delta_latitude / 2), 2) + cos(latitude1) * cos(latitude2) * pow(sin(delta_longitude / 2), 2);
 
-    return R0 * 2 * atan2(sqrt(a), sqrt(1-a));
+    return R0 * 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
 }
 
 std::string NavigationCalculator::getLocationData()
 {
     output_string = "";
     std::string temp;
-    //MGRS
+    // MGRS
     output_string = std::to_string(location_mgrs.grid_zone);
     output_string.append("/");
     temp = location_mgrs.grid_letter + location_mgrs.false_easting + location_mgrs.false_northing;
@@ -206,7 +205,7 @@ std::string NavigationCalculator::getLocationData()
     // UTM
     temp = std::to_string(location_utm.grid_zone) + "/" + std::to_string(location_utm.easting) + "/" + std::to_string(location_utm.northing) + "/";
     output_string.append(temp);
-    //LLA
+    // LLA
     temp = std::to_string(location_lla.latitude) + "/" + std::to_string(location_lla.longitude) + "/";
     output_string.append(temp);
     // LLADMS
@@ -214,7 +213,7 @@ std::string NavigationCalculator::getLocationData()
     output_string.append(temp);
     temp = std::to_string(location_lladms.longitude_degrees) + "/" + std::to_string(abs(location_lladms.longitude_minutes)) + "/" + std::to_string(fabs(location_lladms.longitude_seconds)) + "/";
     output_string.append(temp);
-    //ECEF
+    // ECEF
     temp = std::to_string(location_ecef.x) + "/" + std::to_string(location_ecef.y) + "/" + std::to_string(location_ecef.z) + "/" + std::to_string(location_lla.alt);
     output_string.append(temp);
 
@@ -606,4 +605,65 @@ NavigationCalculator::Vector3 NavigationCalculator::getBodyRPV(ECEF ecef_target_
     body_rpv.z = -1 * local_rpv.z;
 
     return body_rpv;
+}
+
+NavigationCalculator::LLA NavigationCalculator::findLocationFromPolarData(LLA lla_start_coordinates, double distance, double bearing)
+{
+    LLA lla_target_coordinates;
+    LLA reference_coordinates = lla_start_coordinates;
+    double delta;
+
+    lla_start_coordinates.latitude = degreesToRadians(lla_start_coordinates.latitude);
+    lla_start_coordinates.longitude = degreesToRadians(lla_start_coordinates.longitude);
+
+    delta = distance / R0;
+    lla_target_coordinates.latitude = asin(sin(lla_start_coordinates.latitude) * cos(delta) + cos(lla_start_coordinates.latitude) * sin(delta) * cos(bearing));
+    lla_target_coordinates.longitude = lla_start_coordinates.longitude + atan2(sin(bearing) * sin(delta) * cos(lla_start_coordinates.latitude), cos(delta) - sin(lla_start_coordinates.latitude) * sin(lla_target_coordinates.latitude));
+
+    lla_target_coordinates.latitude = radiansToDegrees(lla_target_coordinates.latitude);
+    lla_target_coordinates.longitude = radiansToDegrees(lla_target_coordinates.longitude);
+    lla_target_coordinates.alt = lla_start_coordinates.alt;
+
+    double bearing_error;
+    double distance_error;
+    double adjusted_distance = distance;
+    double adjusted_bearing = bearing;
+    PolarData current_data = calculatePolarData(reference_coordinates, lla_target_coordinates);
+    bool converge = false;
+    double distance_error_threshold = 0.5;
+    double bearing_error_threshold = 1.0 / 18.0;
+    int max_loop_iterate = 100;
+    int i = 0;
+
+    while (!converge)
+    {
+        bearing_error = radiansToDegrees(bearing) - current_data.bearing;
+        distance_error = distance - current_data.haversine;
+        if (fabs(bearing_error) < bearing_error_threshold && fabs(distance_error) < distance_error_threshold)
+        {
+            converge = true;
+        }
+        else
+        {
+            adjusted_bearing += degreesToRadians(bearing_error);
+            adjusted_distance += distance_error;
+
+            delta = adjusted_distance / R0;
+            lla_target_coordinates.latitude = asin(sin(lla_start_coordinates.latitude) * cos(delta) + cos(lla_start_coordinates.latitude) * sin(delta) * cos(adjusted_bearing));
+            lla_target_coordinates.longitude = lla_start_coordinates.longitude + atan2(sin(adjusted_bearing) * sin(delta) * cos(lla_start_coordinates.latitude), cos(delta) - sin(lla_start_coordinates.latitude) * sin(lla_target_coordinates.latitude));
+
+            lla_target_coordinates.latitude = radiansToDegrees(lla_target_coordinates.latitude);
+            lla_target_coordinates.longitude = radiansToDegrees(lla_target_coordinates.longitude);
+
+            current_data = calculatePolarData(reference_coordinates, lla_target_coordinates);
+        }
+
+        i++;
+        if (i > max_loop_iterate)
+        {
+            converge = true;
+        }
+    }
+
+    return lla_target_coordinates;
 }

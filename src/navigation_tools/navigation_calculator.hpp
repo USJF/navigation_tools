@@ -33,6 +33,8 @@ class NavigationCalculator : public CoordinateConverter
     };
 
     PolarData calculatePolarData(LLA start_point, LLA target_point);
+    double radiansToDegrees(double radians);
+    double degreesToRadians(double degrees);
 
     std::string output_string;
     std::string getLocationData();
@@ -68,6 +70,8 @@ class NavigationCalculator : public CoordinateConverter
     Vector3 getBodyRPV(MGRS mgrs_target_coordinates, double heading);
     Vector3 getBodyRPV(MGRS mgrs_target_coordinates, double heading, MGRS mgrs_start_coordinates);
 
+    LLA findLocationFromPolarData(LLA lla_start_coordinates, double distance, double bearing);
+
     private:
     double Rp;
     double R0;
@@ -94,8 +98,6 @@ class NavigationCalculator : public CoordinateConverter
     double magnitude;
     double enu[3];
 
-    double radiansToDegrees(double radians);
-    double degreesToRadians(double degrees);
     double calculateBearing(double delta_east, double delta_north);
 
     Vector3 calculateLocalRPV(LLA start_point, LLA target_point);
