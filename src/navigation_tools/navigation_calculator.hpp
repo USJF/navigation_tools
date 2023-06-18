@@ -34,6 +34,7 @@ class NavigationCalculator : public CoordinateConverter
 
     PolarData calculatePolarData(LLA start_point, LLA target_point);
     std::string getPolarDataString(LLA start_point, LLA target_point);
+    std::string getPolarDataString(double latitude1, double longitude1, double alt1, double latitude2, double longitude2, double alt2);
     double radiansToDegrees(double radians);
     double degreesToRadians(double degrees);
 

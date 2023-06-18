@@ -774,3 +774,19 @@ std::string NavigationCalculator::getPolarDataString(LLA start_point, LLA target
     PolarData data = calculatePolarData(start_point, target_point);
     return std::to_string(data.bearing) + '/' + std::to_string(data.haversine) + '/' + std::to_string(data.displacement);
 }
+
+std::string NavigationCalculator::getPolarDataString(double latitude1, double longitude1, double alt1, double latitude2, double longitude2, double alt2)
+{
+    LLA start_point;
+    start_point.latitude = latitude1;
+    start_point.longitude = longitude1;
+    start_point.alt = alt1;
+
+    LLA target_point;
+    target_point.latitude = latitude2;
+    target_point.longitude = longitude2;
+    target_point.alt = alt2;
+
+    PolarData data = calculatePolarData(start_point, target_point);
+    return std::to_string(data.bearing) + '/' + std::to_string(data.haversine) + '/' + std::to_string(data.displacement);
+}
