@@ -222,7 +222,7 @@ CoordinateConverter::UTM CoordinateConverter::convertLLA2UTM(CoordinateConverter
     UTM utm_coordinates;
     utm_coordinates.easting = easting;
     utm_coordinates.northing = northing;
-    if (lat_deg > 0)
+    if (lat_deg >= 0)
     {
         utm_coordinates.grid_zone = grid_zone;
     }
@@ -242,7 +242,7 @@ CoordinateConverter::LLA CoordinateConverter::convertUTM2LLA(CoordinateConverter
     grid_zone = utm_in.grid_zone;
 
     // Hemisphere Based Northing Offset
-    if (grid_zone > 0.0)
+    if (grid_zone >= 0.0)
     {
         Y0 = 0;
     }

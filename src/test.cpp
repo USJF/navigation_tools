@@ -33,8 +33,13 @@ int main(int argc, char **argv)
     double bearing_error;
     int i = 0;
 
-
-
+    NavigationCalculator::LLA point;
+    point.latitude = 0;
+    point.longitude = 0;
+    point.alt = 0;
+    calculator.setLocationLLA(point);
+    std::string data_string = calculator.getLocationData();
+    std::cout<<data_string<<std::endl;
     /*NavigationCalculator::PolarData converge_data_buffer = data;
     while (!converge)
     {
