@@ -20,6 +20,7 @@ int main(int argc, char **argv)
     NavigationCalculator::PolarData data = calculator.calculatePolarData(start_point, target_point);
 
     std::cout<< data.bearing << "\t" << data.haversine << std::endl;
+    std::cout<< calculator.getPolarDataString(start_point, target_point) << std::endl;
     
     NavigationCalculator::LLA lla_output = calculator.findLocationFromPolarData(start_point, data.haversine, calculator.degreesToRadians(data.bearing));
     NavigationCalculator::PolarData data2 = calculator.calculatePolarData(start_point, lla_output);

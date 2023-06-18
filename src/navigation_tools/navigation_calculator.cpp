@@ -768,3 +768,9 @@ NavigationCalculator::MGRS NavigationCalculator::findLocationFromPolarData(MGRS 
     LLA lla_start_coordinates = convertMGRS2LLA(mgrs_start_coordinates);
     return convertLLA2MGRS(calculateLocation(lla_start_coordinates, distance, bearing));
 }
+
+std::string NavigationCalculator::getPolarDataString(LLA start_point, LLA target_point)
+{
+    PolarData data = calculatePolarData(start_point, target_point);
+    return std::to_string(data.bearing) + '/' + std::to_string(data.haversine) + '/' + std::to_string(data.displacement);
+}
