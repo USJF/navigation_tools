@@ -39,8 +39,10 @@ int main(int argc, char **argv)
     point.longitude = 0;
     point.alt = 0;
     calculator.setLocationLLA(point);
-    std::string data_string = calculator.getLocationData();
-    std::cout<<data_string<<std::endl;
+    NavigationCalculator::LLA point2 = point;
+    point2.longitude = 1;
+    NavigationCalculator::Vector3 body_rpv = calculator.getBodyRPV(point2, M_PI/2);
+    std::cout << body_rpv.x << '\t' << body_rpv.y << '\t' << body_rpv.z << std::endl;
     /*NavigationCalculator::PolarData converge_data_buffer = data;
     while (!converge)
     {

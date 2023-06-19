@@ -99,6 +99,15 @@ NavigationCalculator::PolarData NavigationCalculator::calculatePolarData(LLA sta
     delta_z = ecef_target.z - ecef_start.z;
     magnitude = sqrt(pow(delta_x, 2) + pow(delta_y, 2) + pow(delta_z, 2));
 
+    if (magnitude == 0)
+    {
+        output_data.bearing = 0;
+        output_data.haversine = 0;
+        output_data.displacement = 0;
+
+        return output_data;
+    }
+
     // Create ECEF to ENU Rotation Matrix
     local_rotation_coefs[0][0] = -1 * sin(longitude);
     local_rotation_coefs[0][1] = cos(longitude);
@@ -691,7 +700,7 @@ NavigationCalculator::LLA NavigationCalculator::calculateLocation(LLA lla_start_
     delta = distance / R0;
     lla_target_coordinates.latitude = asin(sin(lla_start_coordinates.latitude) * cos(delta) + cos(lla_start_coordinates.latitude) * sin(delta) * cos(bearing));
     lla_target_coordinates.longitude = lla_start_coordinates.longitude + atan2(sin(bearing) * sin(delta) * cos(lla_start_coordinates.latitude), cos(delta) - sin(lla_start_coordinates.latitude) * sin(lla_target_coordinates.latitude));
-
+    
     lla_target_coordinates.latitude = radiansToDegrees(lla_target_coordinates.latitude);
     lla_target_coordinates.longitude = radiansToDegrees(lla_target_coordinates.longitude);
     lla_target_coordinates.alt = lla_start_coordinates.alt;
