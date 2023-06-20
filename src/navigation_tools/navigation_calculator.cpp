@@ -310,10 +310,11 @@ void NavigationCalculator::setLocationMGRS(double easting, double northing, doub
     location_mgrs.false_easting = false_easting;
     location_mgrs.false_northing = false_northing;
 
-    location_utm = convertMGRS2UTM(location_mgrs);
-    location_lla = convertUTM2LLA(location_utm);
+    location_lla = convertMGRS2LLA(location_mgrs);
     location_lladms = convertLLA2LLADMS(location_lla);
     location_ecef = convertLLA2ECEF(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
 }
 
 void NavigationCalculator::setLocationMGRS(double easting, double northing, double alt, int grid_number, std::string zone_letters)
@@ -326,19 +327,21 @@ void NavigationCalculator::setLocationMGRS(double easting, double northing, doub
     location_mgrs.false_easting = zone_letters[1];
     location_mgrs.false_northing = zone_letters[2];
 
-    location_utm = convertMGRS2UTM(location_mgrs);
-    location_lla = convertUTM2LLA(location_utm);
+    location_lla = convertMGRS2LLA(location_mgrs);
     location_lladms = convertLLA2LLADMS(location_lla);
     location_ecef = convertLLA2ECEF(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
 }
 
 void NavigationCalculator::setLocationMGRS(MGRS mgrs_coordinates)
 {
     location_mgrs = mgrs_coordinates;
-    location_utm = convertMGRS2UTM(location_mgrs);
-    location_lla = convertUTM2LLA(location_utm);
+    location_lla = convertMGRS2LLA(location_mgrs);
     location_lladms = convertLLA2LLADMS(location_lla);
     location_ecef = convertLLA2ECEF(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
 }
 
 // Set Location to UTM Coordinates
@@ -349,19 +352,21 @@ void NavigationCalculator::setLocationUTM(double easting, double northing, doubl
     location_utm.alt = alt;
     location_utm.grid_zone = grid_zone;
 
-    location_mgrs = convertUTM2MGRS(location_utm);
     location_lla = convertUTM2LLA(location_utm);
     location_lladms = convertLLA2LLADMS(location_lla);
     location_ecef = convertLLA2ECEF(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
 }
 
 void NavigationCalculator::setLocationUTM(UTM utm_coordinates)
 {
     location_utm = utm_coordinates;
-    location_mgrs = convertUTM2MGRS(location_utm);
     location_lla = convertUTM2LLA(location_utm);
     location_lladms = convertLLA2LLADMS(location_lla);
     location_ecef = convertLLA2ECEF(location_lla);
+    location_utm = convertLLA2UTM(location_lla);
+    location_mgrs = convertUTM2MGRS(location_utm);
 }
 
 NavigationCalculator::Vector3 NavigationCalculator::calculateLocalRPV(LLA start_point, LLA target_point)
