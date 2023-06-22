@@ -43,7 +43,7 @@ class NavigationCalculator : public CoordinateConverter
 
     double calculateRn(double latitude);
     double calculateRe(double latitude);
-    double haversine(double latitude1, double latitude2, double longitude1, double longitude2);
+    double haversine(LLA start_point, LLA end_point);
 
     void setLocationECEF(double x, double y, double z);
     void setLocationECEF(ECEF ecef_coordinates);

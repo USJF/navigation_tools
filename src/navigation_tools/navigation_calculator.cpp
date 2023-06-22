@@ -128,7 +128,7 @@ NavigationCalculator::PolarData NavigationCalculator::calculatePolarData(LLA sta
     output_data.displacement = magnitude;
     output_data.bearing = calculateBearing(enu[0], enu[1]);
 
-    output_data.haversine = haversine(start_point.latitude, target_point.latitude, start_point.longitude, target_point.longitude);
+    output_data.haversine = haversine(start_point, target_point);
 
     if (output_data.bearing < 0)
     {
@@ -184,17 +184,19 @@ double NavigationCalculator::calculateBearing(double delta_east, double delta_no
     return radiansToDegrees(relative_bearing);
 }
 
-double NavigationCalculator::haversine(double latitude1, double latitude2, double longitude1, double longitude2)
+double NavigationCalculator::haversine(LLA start_point, LLA end_point)
 {
     // Ground Distance Calculation Using Haversine Formula
-    latitude1 = degreesToRadians(latitude1);
-    latitude2 = degreesToRadians(latitude2);
+    double latitude1 = degreesToRadians(start_point.latitude);
+    double latitude2 = degreesToRadians(end_point.latitude);
     double delta_latitude = latitude2 - latitude1;
 
-    double delta_longitude = degreesToRadians(longitude2 - longitude1);
+    double delta_longitude = degreesToRadians(end_point.longitude - start_point.longitude);
     double a = pow(sin(delta_latitude / 2), 2) + cos(latitude1) * cos(latitude2) * pow(sin(delta_longitude / 2), 2);
 
-    return R0 * 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
+    double h = (start_point.alt + end_point.alt) / 2;
+
+    return (R0+h) * 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
 }
 
 std::string NavigationCalculator::getLocationData()
@@ -697,12 +699,13 @@ NavigationCalculator::LLA NavigationCalculator::calculateLocation(LLA lla_start_
 {
     LLA lla_target_coordinates;
     LLA reference_coordinates = lla_start_coordinates;
+
     double delta;
 
     lla_start_coordinates.latitude = degreesToRadians(lla_start_coordinates.latitude);
     lla_start_coordinates.longitude = degreesToRadians(lla_start_coordinates.longitude);
 
-    delta = distance / R0;
+    delta = distance / (R0 + reference_coordinates.alt);
     lla_target_coordinates.latitude = asin(sin(lla_start_coordinates.latitude) * cos(delta) + cos(lla_start_coordinates.latitude) * sin(delta) * cos(bearing));
     lla_target_coordinates.longitude = lla_start_coordinates.longitude + atan2(sin(bearing) * sin(delta) * cos(lla_start_coordinates.latitude), cos(delta) - sin(lla_start_coordinates.latitude) * sin(lla_target_coordinates.latitude));
     
@@ -734,7 +737,7 @@ NavigationCalculator::LLA NavigationCalculator::calculateLocation(LLA lla_start_
             adjusted_bearing += degreesToRadians(bearing_error);
             adjusted_distance += distance_error;
 
-            delta = adjusted_distance / R0;
+            delta = adjusted_distance / (R0 + reference_coordinates.alt);
             lla_target_coordinates.latitude = asin(sin(lla_start_coordinates.latitude) * cos(delta) + cos(lla_start_coordinates.latitude) * sin(delta) * cos(adjusted_bearing));
             lla_target_coordinates.longitude = lla_start_coordinates.longitude + atan2(sin(adjusted_bearing) * sin(delta) * cos(lla_start_coordinates.latitude), cos(delta) - sin(lla_start_coordinates.latitude) * sin(lla_target_coordinates.latitude));
 
