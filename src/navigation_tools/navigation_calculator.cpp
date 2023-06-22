@@ -719,7 +719,7 @@ NavigationCalculator::LLA NavigationCalculator::calculateLocation(LLA lla_start_
     double adjusted_bearing = bearing;
     PolarData current_data = calculatePolarData(reference_coordinates, lla_target_coordinates);
     bool converge = false;
-    double distance_error_threshold = 0.5;
+    double distance_error_threshold = 0.01;
     double bearing_error_threshold = 1.0 / 18.0;
     int max_loop_iterate = 100;
     int i = 0;
