@@ -80,6 +80,14 @@ class NavigationCalculator : public CoordinateConverter
     UTM findLocationFromPolarData(UTM utm_start_coordinates, double distance, double bearing);
     MGRS findLocationFromPolarData(MGRS mgrs_start_coordinates, double distance, double bearing);
 
+    Vector3 calculateLocalRPV(LLA start_point, LLA target_point);
+    Vector3 calculateLocalRPV(ECEF start_point, ECEF target_point);
+    Vector3 calculateLocalRPV(LLADMS start_point, LLADMS target_point);
+    Vector3 calculateLocalRPV(UTM start_point, UTM target_point);
+    Vector3 calculateLocalRPV(MGRS start_point, MGRS target_point);
+
+    double calculateBearing(double delta_east, double delta_north);
+
     private:
     double Rp;
     double R0;
@@ -105,14 +113,6 @@ class NavigationCalculator : public CoordinateConverter
     double longitude;
     double magnitude;
     double enu[3];
-
-    double calculateBearing(double delta_east, double delta_north);
-
-    Vector3 calculateLocalRPV(LLA start_point, LLA target_point);
-    Vector3 calculateLocalRPV(ECEF start_point, ECEF target_point);
-    Vector3 calculateLocalRPV(LLADMS start_point, LLADMS target_point);
-    Vector3 calculateLocalRPV(UTM start_point, UTM target_point);
-    Vector3 calculateLocalRPV(MGRS start_point, MGRS target_point);
 };
 
 #endif

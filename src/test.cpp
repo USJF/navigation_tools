@@ -9,6 +9,7 @@ int main(int argc, char **argv)
     NavigationCalculator calculator;
 
     NavigationCalculator::LLA point;
+    NavigationCalculator::LLA start_point = point;
 
     point.latitude = 45;
     point.longitude = -120;
@@ -22,12 +23,17 @@ int main(int argc, char **argv)
     std::cout << total_distance << std::endl;
     std::cout << heading << std::endl;
 
+    NavigationCalculator::LLA end_point = calculator.findLocationFromPolarData(point, total_distance, heading);
+
     while (current_distance < total_distance)
     {
-        point = calculator.findLocationFromPolarData(point, 1.0, heading);
+        point = calculator.findLocationFromPolarData(point, 5.0, heading);
         current_distance++;
     }
 
-    std::cout << point.latitude << '\n' << point.longitude << '\n' << point.alt << std::endl;
+    std::cout << point.latitude << '\t' << point.longitude << '\t' << point.alt << std::endl;
 
+    std::cout << end_point.latitude << '\t' << end_point.longitude << '\t' << end_point.alt << std::endl;
+
+    std::cout << calculator.haversine(start_point, end_point) << std::endl;   
 }
