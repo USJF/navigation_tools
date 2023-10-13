@@ -31,9 +31,14 @@ int main(int argc, char **argv)
         current_distance++;
     }
 
-    std::cout << point.latitude << '\t' << point.longitude << '\t' << point.alt << std::endl;
-
-    std::cout << end_point.latitude << '\t' << end_point.longitude << '\t' << end_point.alt << std::endl;
-
-    std::cout << calculator.haversine(start_point, end_point) << std::endl;   
+   NavigationCalculator::Vector3 ecef_vector;
+   ecef_vector.x = -1;
+   ecef_vector.y = 1;
+   ecef_vector.z = 0;
+   NavigationCalculator::LLA reference;
+   reference.latitude = 0;
+   reference.longitude = 45;
+   reference.alt = 0;
+   NavigationCalculator::Vector3 local_vector = calculator.rotateECEFVector2ENU(reference, ecef_vector);
+   std::cout<<local_vector.x << "\t"<< local_vector.y <<'\t' << local_vector.z<<std::endl;
 }

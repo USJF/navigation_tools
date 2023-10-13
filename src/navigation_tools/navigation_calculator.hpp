@@ -86,6 +86,8 @@ class NavigationCalculator : public CoordinateConverter
     Vector3 calculateLocalRPV(UTM start_point, UTM target_point);
     Vector3 calculateLocalRPV(MGRS start_point, MGRS target_point);
 
+    Vector3 rotateECEFVector2ENU(LLA reference_point, Vector3 ecef_vector);
+
     double calculateBearing(double delta_east, double delta_north);
 
     private:

@@ -757,6 +757,28 @@ NavigationCalculator::LLA NavigationCalculator::calculateLocation(LLA lla_start_
     return lla_target_coordinates;
 }
 
+NavigationCalculator::Vector3 NavigationCalculator::rotateECEFVector2ENU(LLA reference_point, Vector3 ecef_vector)
+{
+    latitude = degreesToRadians(reference_point.latitude);
+    longitude = degreesToRadians(reference_point.longitude);
+    local_rotation_coefs[0][0] = -1 * sin(longitude);
+    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][2] = 0;
+    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
+    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
+    local_rotation_coefs[1][2] = cos(latitude);
+    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
+    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
+    local_rotation_coefs[2][2] = sin(latitude);
+
+    Vector3 local_vector;
+    local_vector.x = ecef_vector.x * local_rotation_coefs[0][0] + ecef_vector.y * local_rotation_coefs[0][1] + ecef_vector.z * local_rotation_coefs[0][2];
+    local_vector.y = ecef_vector.x * local_rotation_coefs[1][0] + ecef_vector.y * local_rotation_coefs[1][1] + ecef_vector.z * local_rotation_coefs[1][2];
+    local_vector.z = ecef_vector.x * local_rotation_coefs[2][0] + ecef_vector.y * local_rotation_coefs[2][1] + ecef_vector.z * local_rotation_coefs[2][2];
+
+    return local_vector;
+}
+
 NavigationCalculator::LLA NavigationCalculator::findLocationFromPolarData(LLA lla_start_coordinates, double distance, double bearing)
 {
     return calculateLocation(lla_start_coordinates, distance, bearing);
