@@ -25,18 +25,9 @@ class NavigationCalculator : public CoordinateConverter
         double bearing;
     };
 
-    struct Vector3
-    {
-        double x;
-        double y;
-        double z;
-    };
-
     PolarData calculatePolarData(LLA start_point, LLA target_point);
     std::string getPolarDataString(LLA start_point, LLA target_point);
     std::string getPolarDataString(double latitude1, double longitude1, double alt1, double latitude2, double longitude2, double alt2);
-    double radiansToDegrees(double radians);
-    double degreesToRadians(double degrees);
 
     std::string output_string;
     std::string getLocationData();

@@ -138,16 +138,6 @@ NavigationCalculator::PolarData NavigationCalculator::calculatePolarData(LLA sta
     return output_data;
 }
 
-double NavigationCalculator::degreesToRadians(double degrees)
-{
-    return degrees * M_PI / 180.0;
-}
-
-double NavigationCalculator::radiansToDegrees(double radians)
-{
-    return radians * 180.0 / M_PI;
-}
-
 double NavigationCalculator::calculateBearing(double delta_east, double delta_north)
 {
     // Calculate ENU Bearing from Rotated Unit Vector

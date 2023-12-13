@@ -405,3 +405,412 @@ CoordinateConverter::UTM CoordinateConverter::convertECEF2UTM(CoordinateConverte
     return convertLLA2UTM(lla_coords);
 }
 
+double CoordinateConverter::degreesToRadians(double degrees)
+{
+    return degrees * M_PI / 180.0;
+}
+
+double CoordinateConverter::radiansToDegrees(double radians)
+{
+    return radians * 180.0 / M_PI;
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convert2ENU(ECEF ecef_point, LLA lla_reference)
+{
+    ECEF ecef_reference = convertLLA2ECEF(lla_reference);
+
+    double latitude = degreesToRadians(lla_reference.latitude);
+    double longitude = degreesToRadians(lla_reference.longitude);
+
+    double delta_x = ecef_point.x - ecef_reference.x;
+    double delta_y = ecef_point.y - ecef_reference.y;
+    double delta_z = ecef_point.z - ecef_reference.z;
+
+    // Create ECEF to ENU Rotation Matrix
+    double local_rotation_coefs[3][3];
+    local_rotation_coefs[0][0] = -1 * sin(longitude);
+    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][2] = 0;
+    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
+    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
+    local_rotation_coefs[1][2] = cos(latitude);
+    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
+    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
+    local_rotation_coefs[2][2] = sin(latitude);
+
+    Vector3 enu;
+    // Rotate ECEF Unit Vector to ENU
+    enu.x = delta_x * local_rotation_coefs[0][0] + delta_y * local_rotation_coefs[0][1] + delta_z * local_rotation_coefs[0][2];
+    enu.y = delta_x * local_rotation_coefs[1][0] + delta_y * local_rotation_coefs[1][1] + delta_z * local_rotation_coefs[1][2];
+    enu.z = delta_x * local_rotation_coefs[2][0] + delta_y * local_rotation_coefs[2][1] + delta_z * local_rotation_coefs[2][2];
+
+    return enu;
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertNED2ENU(Vector3 ned_in)
+{
+    Vector3 enu;
+    enu.x = ned_in.y;
+    enu.y = ned_in.x;
+    enu.z = -1.0 * ned_in.z;
+    return enu;
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertENU2NED(Vector3 enu_in)
+{
+    Vector3 ned;
+    ned.x = enu_in.y;
+    ned.y = enu_in.x;
+    ned.z = -1.0 * enu_in.z;
+    return ned;
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2ENU(ECEF ecef_in, ECEF ref)
+{
+    LLA ref_lla = convertECEF2LLA(ref);
+    ECEF ecef_point = ecef_in;
+
+    return convert2ENU(ecef_point, ref_lla);    
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2ENU(ECEF ecef_in, LLA ref)
+{
+    LLA ref_lla = ref;
+    ECEF ecef_point = ecef_in;
+
+    return convert2ENU(ecef_point, ref_lla);    
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2ENU(ECEF ecef_in, LLADMS ref)
+{
+    LLA ref_lla = convertLLADMS2LLA(ref);
+    ECEF ecef_point = ecef_in;
+
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2ENU(ECEF ecef_in, UTM ref)
+{
+    LLA ref_lla = convertUTM2LLA(ref);
+    ECEF ecef_point = ecef_in;
+
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2ENU(ECEF ecef_in, MGRS ref)
+{
+    LLA ref_lla = convertMGRS2LLA(ref);
+    ECEF ecef_point = ecef_in;
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2ENU(LLA lla_in, ECEF ref)
+{
+    LLA ref_lla = convertECEF2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(lla_in);
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2ENU(LLA lla_in, LLA ref)
+{
+    LLA ref_lla = ref;
+    ECEF ecef_point = convertLLA2ECEF(lla_in);
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2ENU(LLA lla_in, LLADMS ref)
+{
+    LLA ref_lla = convertLLADMS2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(lla_in);
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2ENU(LLA lla_in, UTM ref)
+{
+    LLA ref_lla = convertUTM2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(lla_in);
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2ENU(LLA lla_in, MGRS ref)
+{
+    LLA ref_lla = convertMGRS2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(lla_in);
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2ENU(LLADMS lla_in, ECEF ref)
+{
+    LLA ref_lla = convertECEF2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertLLADMS2LLA(lla_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2ENU(LLADMS lla_in, LLA ref)
+{
+    LLA ref_lla = ref;
+    ECEF ecef_point = convertLLA2ECEF(convertLLADMS2LLA(lla_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2ENU(LLADMS lla_in, LLADMS ref)
+{
+    LLA ref_lla = convertLLADMS2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertLLADMS2LLA(lla_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2ENU(LLADMS lla_in, UTM ref)
+{
+    LLA ref_lla = convertUTM2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertLLADMS2LLA(lla_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2ENU(LLADMS lla_in, MGRS ref)
+{
+    LLA ref_lla = convertMGRS2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertLLADMS2LLA(lla_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2ENU(UTM utm_in, ECEF ref)
+{
+    LLA ref_lla = convertECEF2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertUTM2LLA(utm_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2ENU(UTM utm_in, LLA ref)
+{
+    LLA ref_lla = ref;
+    ECEF ecef_point = convertLLA2ECEF(convertUTM2LLA(utm_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2ENU(UTM utm_in, LLADMS ref)
+{
+    LLA ref_lla = convertLLADMS2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertUTM2LLA(utm_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2ENU(UTM utm_in, UTM ref)
+{
+    LLA ref_lla = convertUTM2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertUTM2LLA(utm_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2ENU(UTM utm_in, MGRS ref)
+{
+    LLA ref_lla = convertMGRS2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertUTM2LLA(utm_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2ENU(MGRS mgrs_in, ECEF ref)
+{
+    LLA ref_lla = convertECEF2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertMGRS2LLA(mgrs_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2ENU(MGRS mgrs_in, LLA ref)
+{
+    LLA ref_lla = ref;
+    ECEF ecef_point = convertLLA2ECEF(convertMGRS2LLA(mgrs_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2ENU(MGRS mgrs_in, LLADMS ref)
+{
+    LLA ref_lla = convertLLADMS2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertMGRS2LLA(mgrs_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2ENU(MGRS mgrs_in, UTM ref)
+{
+    LLA ref_lla = convertUTM2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertMGRS2LLA(mgrs_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2ENU(MGRS mgrs_in, MGRS ref)
+{
+    LLA ref_lla = convertMGRS2LLA(ref);
+    ECEF ecef_point = convertLLA2ECEF(convertMGRS2LLA(mgrs_in));
+    
+    return convert2ENU(ecef_point, ref_lla); 
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2NED(ECEF ecef_in, ECEF ref)
+{
+    Vector3 enu = convertECEF2ENU(ecef_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2NED(ECEF ecef_in, LLA ref)
+{
+    Vector3 enu = convertECEF2ENU(ecef_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2NED(ECEF ecef_in, LLADMS ref)
+{
+    Vector3 enu = convertECEF2ENU(ecef_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2NED(ECEF ecef_in, UTM ref)
+{
+    Vector3 enu = convertECEF2ENU(ecef_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertECEF2NED(ECEF ecef_in, MGRS ref)
+{
+    Vector3 enu = convertECEF2ENU(ecef_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2NED(LLA lla_in, ECEF ref)
+{
+    Vector3 enu = convertLLA2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2NED(LLA lla_in, LLA ref)
+{
+    Vector3 enu = convertLLA2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2NED(LLA lla_in, LLADMS ref)
+{
+    Vector3 enu = convertLLA2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2NED(LLA lla_in, UTM ref)
+{
+    Vector3 enu = convertLLA2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLA2NED(LLA lla_in, MGRS ref)
+{
+    Vector3 enu = convertLLA2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2NED(LLADMS lla_in, ECEF ref)
+{
+    Vector3 enu = convertLLADMS2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2NED(LLADMS lla_in, LLA ref)
+{
+    Vector3 enu = convertLLADMS2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2NED(LLADMS lla_in, LLADMS ref)
+{
+    Vector3 enu = convertLLADMS2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2NED(LLADMS lla_in, UTM ref)
+{
+    Vector3 enu = convertLLADMS2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertLLADMS2NED(LLADMS lla_in, MGRS ref)
+{
+    Vector3 enu = convertLLADMS2ENU(lla_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2NED(UTM utm_in, ECEF ref)
+{
+    Vector3 enu = convertUTM2ENU(utm_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2NED(UTM utm_in, LLA ref)
+{
+    Vector3 enu = convertUTM2ENU(utm_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2NED(UTM utm_in, LLADMS ref)
+{
+    Vector3 enu = convertUTM2ENU(utm_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2NED(UTM utm_in, UTM ref)
+{
+    Vector3 enu = convertUTM2ENU(utm_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertUTM2NED(UTM utm_in, MGRS ref)
+{
+    Vector3 enu = convertUTM2ENU(utm_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2NED(MGRS mgrs_in, ECEF ref)
+{
+    Vector3 enu = convertMGRS2ENU(mgrs_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2NED(MGRS mgrs_in, LLA ref)
+{
+    Vector3 enu = convertMGRS2ENU(mgrs_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2NED(MGRS mgrs_in, LLADMS ref)
+{
+    Vector3 enu = convertMGRS2ENU(mgrs_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2NED(MGRS mgrs_in, UTM ref)
+{
+    Vector3 enu = convertMGRS2ENU(mgrs_in, ref);
+    return convertENU2NED(enu);
+}
+
+CoordinateConverter::Vector3 CoordinateConverter::convertMGRS2NED(MGRS mgrs_in, MGRS ref)
+{
+    Vector3 enu = convertMGRS2ENU(mgrs_in, ref);
+    return convertENU2NED(enu);
+}
