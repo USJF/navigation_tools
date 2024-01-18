@@ -239,6 +239,70 @@ class NavigationCalculator
 
     Vector3 convertENU2NED(Vector3 enu_in);
 
+    // TODO: Rotations back into global frames
+
+    // FROM ENU
+    ECEF convertENU2ECEF(Vector3 enu_in, ECEF ref);
+    ECEF convertENU2ECEF(Vector3 enu_in, LLA ref);
+    ECEF convertENU2ECEF(Vector3 enu_in, LLADMS ref);
+    ECEF convertENU2ECEF(Vector3 enu_in, UTM ref);
+    ECEF convertENU2ECEF(Vector3 enu_in, MGRS ref);
+
+    LLA convertENU2LLA(Vector3 enu_in, ECEF ref);
+    LLA convertENU2LLA(Vector3 enu_in, LLA ref);
+    LLA convertENU2LLA(Vector3 enu_in, LLADMS ref);
+    LLA convertENU2LLA(Vector3 enu_in, UTM ref);
+    LLA convertENU2LLA(Vector3 enu_in, MGRS ref);
+
+    LLADMS convertENU2LLADMS(Vector3 enu_in, ECEF ref);
+    LLADMS convertENU2LLADMS(Vector3 enu_in, LLA ref);
+    LLADMS convertENU2LLADMS(Vector3 enu_in, LLADMS ref);
+    LLADMS convertENU2LLADMS(Vector3 enu_in, UTM ref);
+    LLADMS convertENU2LLADMS(Vector3 enu_in, MGRS ref);
+
+    UTM convertENU2UTM(Vector3 enu_in, ECEF ref);
+    UTM convertENU2UTM(Vector3 enu_in, LLA ref);
+    UTM convertENU2UTM(Vector3 enu_in, LLADMS ref);
+    UTM convertENU2UTM(Vector3 enu_in, UTM ref);
+    UTM convertENU2UTM(Vector3 enu_in, MGRS ref);
+
+    MGRS convertENU2MGRS(Vector3 enu_in, ECEF ref);
+    MGRS convertENU2MGRS(Vector3 enu_in, LLA ref);
+    MGRS convertENU2MGRS(Vector3 enu_in, LLADMS ref);
+    MGRS convertENU2MGRS(Vector3 enu_in, UTM ref);
+    MGRS convertENU2MGRS(Vector3 enu_in, MGRS ref);
+
+    // FROM NED
+    ECEF convertNED2ECEF(Vector3 ned_in, ECEF ref);
+    ECEF convertNED2ECEF(Vector3 ned_in, LLA ref);
+    ECEF convertNED2ECEF(Vector3 ned_in, LLADMS ref);
+    ECEF convertNED2ECEF(Vector3 ned_in, UTM ref);
+    ECEF convertNED2ECEF(Vector3 ned_in, MGRS ref);
+
+    LLA convertNED2LLA(Vector3 ned_in, ECEF ref);
+    LLA convertNED2LLA(Vector3 ned_in, LLA ref);
+    LLA convertNED2LLA(Vector3 ned_in, LLADMS ref);
+    LLA convertNED2LLA(Vector3 ned_in, UTM ref);
+    LLA convertNED2LLA(Vector3 ned_in, MGRS ref);
+
+    LLADMS convertNED2LLADMS(Vector3 ned_in, ECEF ref);
+    LLADMS convertNED2LLADMS(Vector3 ned_in, LLA ref);
+    LLADMS convertNED2LLADMS(Vector3 ned_in, LLADMS ref);
+    LLADMS convertNED2LLADMS(Vector3 ned_in, UTM ref);
+    LLADMS convertNED2LLADMS(Vector3 ned_in, MGRS ref);
+
+    UTM convertNED2UTM(Vector3 ned_in, ECEF ref);
+    UTM convertNED2UTM(Vector3 ned_in, LLA ref);
+    UTM convertNED2UTM(Vector3 ned_in, LLADMS ref);
+    UTM convertNED2UTM(Vector3 ned_in, UTM ref);
+    UTM convertNED2UTM(Vector3 ned_in, MGRS ref);
+
+    MGRS convertNED2MGRS(Vector3 ned_in, ECEF ref);
+    MGRS convertNED2MGRS(Vector3 ned_in, LLA ref);
+    MGRS convertNED2MGRS(Vector3 ned_in, LLADMS ref);
+    MGRS convertNED2MGRS(Vector3 ned_in, UTM ref);
+    MGRS convertNED2MGRS(Vector3 ned_in, MGRS ref);
+
     private:
     double Rp;
     double R0;

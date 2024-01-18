@@ -784,3 +784,328 @@ NavigationCalculator::Vector3 NavigationCalculator::convertMGRS2NED(MGRS mgrs_in
     Vector3 enu = convertMGRS2ENU(mgrs_in, ref);
     return convertENU2NED(enu);
 }
+
+NavigationCalculator::ECEF NavigationCalculator::convertENU2ECEF(Vector3 enu_in, ECEF ref)
+{
+    LLA lla_reference = convertECEF2LLA(ref);
+    ECEF ecef_reference = ref;
+
+    double latitude = degreesToRadians(lla_reference.latitude);
+    double longiutde = degreesToRadians(lla_reference.longitude);
+
+    double rotation_coefs[3][3];
+    rotation_coefs[0][0] = -sin(longitude);
+    rotation_coefs[0][1] = -sin(latitude)*cos(longitude);
+    rotation_coefs[0][2] = cos(latitude)*cos(longitude);
+    rotation_coefs[1][0] = cos(longitude);
+    rotation_coefs[1][1] = -sin(latitude)*sin(longitude);
+    rotation_coefs[1][2] = cos(latitude)*sin(longitude);
+    rotation_coefs[2][0] = 0;
+    rotation_coefs[2][1] = cos(latitude);
+    rotation_coefs[2][2] = sin(latitude);
+
+    ECEF ecef_coordinates;
+    ecef_coordinates.x = enu_in.x * rotation_coefs[0][0] + enu_in.y * rotation_coefs[0][1] + enu_in.z * rotation_coefs[0][2] + ecef_reference.x;
+    ecef_coordinates.x = enu_in.x * rotation_coefs[1][0] + enu_in.y * rotation_coefs[1][1] + enu_in.z * rotation_coefs[1][2] + ecef_reference.y;
+    ecef_coordinates.x = enu_in.x * rotation_coefs[2][0] + enu_in.y * rotation_coefs[2][1] + enu_in.z * rotation_coefs[2][2] + ecef_reference.z;
+    
+    return ecef_coordinates;
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertENU2ECEF(Vector3 enu_in, LLA ref)
+{
+    ECEF ecef_reference = convertLLA2ECEF(ref);
+    LLA lla_reference = ref;
+
+    double latitude = degreesToRadians(lla_reference.latitude);
+    double longiutde = degreesToRadians(lla_reference.longitude);
+
+    double rotation_coefs[3][3];
+    rotation_coefs[0][0] = -sin(longitude);
+    rotation_coefs[0][1] = -sin(latitude)*cos(longitude);
+    rotation_coefs[0][2] = cos(latitude)*cos(longitude);
+    rotation_coefs[1][0] = cos(longitude);
+    rotation_coefs[1][1] = -sin(latitude)*sin(longitude);
+    rotation_coefs[1][2] = cos(latitude)*sin(longitude);
+    rotation_coefs[2][0] = 0;
+    rotation_coefs[2][1] = cos(latitude);
+    rotation_coefs[2][2] = sin(latitude);
+
+    ECEF ecef_coordinates;
+    ecef_coordinates.x = enu_in.x * rotation_coefs[0][0] + enu_in.y * rotation_coefs[0][1] + enu_in.z * rotation_coefs[0][2] + ecef_reference.x;
+    ecef_coordinates.x = enu_in.x * rotation_coefs[1][0] + enu_in.y * rotation_coefs[1][1] + enu_in.z * rotation_coefs[1][2] + ecef_reference.y;
+    ecef_coordinates.x = enu_in.x * rotation_coefs[2][0] + enu_in.y * rotation_coefs[2][1] + enu_in.z * rotation_coefs[2][2] + ecef_reference.z;
+    
+    return ecef_coordinates;
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertENU2ECEF(Vector3 enu_in, LLADMS ref)
+{
+    LLA lla_reference = convertLLADMS2LLA(ref);
+
+    return convertENU2ECEF(enu_in, lla_reference);
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertENU2ECEF(Vector3 enu_in, UTM ref)
+{
+    LLA lla_reference = convertUTM2LLA(ref);
+
+    return convertENU2ECEF(enu_in, lla_reference);
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertENU2ECEF(Vector3 enu_in, MGRS ref)
+{
+    LLA lla_reference = convertMGRS2LLA(ref);
+
+    return convertENU2ECEF(enu_in, lla_reference);
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertENU2LLA(Vector3 enu_in, ECEF ref)
+{
+    return convertECEF2LLA(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertENU2LLA(Vector3 enu_in, LLA ref)
+{
+    return convertECEF2LLA(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertENU2LLA(Vector3 enu_in, LLADMS ref)
+{
+    return convertECEF2LLA(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertENU2LLA(Vector3 enu_in, UTM ref)
+{
+    return convertECEF2LLA(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertENU2LLA(Vector3 enu_in, MGRS ref)
+{
+    return convertECEF2LLA(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertENU2LLADMS(Vector3 enu_in, ECEF ref)
+{
+    return convertLLA2LLADMS(convertECEF2LLA(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertENU2LLADMS(Vector3 enu_in, LLA ref)
+{
+    return convertLLA2LLADMS(convertECEF2LLA(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertENU2LLADMS(Vector3 enu_in, LLADMS ref)
+{
+    return convertLLA2LLADMS(convertECEF2LLA(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertENU2LLADMS(Vector3 enu_in, UTM ref)
+{
+    return convertLLA2LLADMS(convertECEF2LLA(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertENU2LLADMS(Vector3 enu_in, MGRS ref)
+{
+    return convertLLA2LLADMS(convertECEF2LLA(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertENU2UTM(Vector3 enu_in, ECEF ref)
+{
+    return convertECEF2UTM(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertENU2UTM(Vector3 enu_in, LLA ref)
+{
+    return convertECEF2UTM(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertENU2UTM(Vector3 enu_in, LLADMS ref)
+{
+    return convertECEF2UTM(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertENU2UTM(Vector3 enu_in, UTM ref)
+{
+    return convertECEF2UTM(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertENU2UTM(Vector3 enu_in, MGRS ref)
+{
+    return convertECEF2UTM(convertENU2ECEF(enu_in, ref));
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertENU2MGRS(Vector3 enu_in, ECEF ref)
+{
+    return convertUTM2MGRS(convertECEF2UTM(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertENU2MGRS(Vector3 enu_in, LLA ref)
+{
+    return convertUTM2MGRS(convertECEF2UTM(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertENU2MGRS(Vector3 enu_in, LLADMS ref)
+{
+    return convertUTM2MGRS(convertECEF2UTM(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertENU2MGRS(Vector3 enu_in, UTM ref)
+{
+    return convertUTM2MGRS(convertECEF2UTM(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertENU2MGRS(Vector3 enu_in, MGRS ref)
+{
+    return convertUTM2MGRS(convertECEF2UTM(convertENU2ECEF(enu_in, ref)));
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertNED2ECEF(Vector3 ned_in, ECEF ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2ECEF(enu, ref);
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertNED2ECEF(Vector3 ned_in, LLA ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2ECEF(enu, ref);
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertNED2ECEF(Vector3 ned_in, LLADMS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2ECEF(enu, ref);
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertNED2ECEF(Vector3 ned_in, UTM ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2ECEF(enu, ref);
+}
+
+NavigationCalculator::ECEF NavigationCalculator::convertNED2ECEF(Vector3 ned_in, MGRS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2ECEF(enu, ref);
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertNED2LLA(Vector3 ned_in, ECEF ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLA(enu, ref);
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertNED2LLA(Vector3 ned_in, LLA ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLA(enu, ref);
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertNED2LLA(Vector3 ned_in, LLADMS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLA(enu, ref);
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertNED2LLA(Vector3 ned_in, UTM ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLA(enu, ref);
+}
+
+NavigationCalculator::LLA NavigationCalculator::convertNED2LLA(Vector3 ned_in, MGRS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLA(enu, ref);
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertNED2LLADMS(Vector3 ned_in, ECEF ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLADMS(enu, ref);
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertNED2LLADMS(Vector3 ned_in, LLA ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLADMS(enu, ref);
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertNED2LLADMS(Vector3 ned_in, LLADMS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLADMS(enu, ref);
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertNED2LLADMS(Vector3 ned_in, UTM ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLADMS(enu, ref);
+}
+
+NavigationCalculator::LLADMS NavigationCalculator::convertNED2LLADMS(Vector3 ned_in, MGRS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2LLADMS(enu, ref);
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertNED2UTM(Vector3 ned_in, ECEF ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2UTM(enu, ref);
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertNED2UTM(Vector3 ned_in, LLA ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2UTM(enu, ref);
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertNED2UTM(Vector3 ned_in, LLADMS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2UTM(enu, ref);
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertNED2UTM(Vector3 ned_in, UTM ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2UTM(enu, ref);
+}
+
+NavigationCalculator::UTM NavigationCalculator::convertNED2UTM(Vector3 ned_in, MGRS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2UTM(enu, ref);
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertNED2MGRS(Vector3 ned_in, ECEF ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2MGRS(enu, ref);
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertNED2MGRS(Vector3 ned_in, LLA ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2MGRS(enu, ref);
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertNED2MGRS(Vector3 ned_in, LLADMS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2MGRS(enu, ref);
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertNED2MGRS(Vector3 ned_in, UTM ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2MGRS(enu, ref);
+}
+
+NavigationCalculator::MGRS NavigationCalculator::convertNED2MGRS(Vector3 ned_in, MGRS ref)
+{
+    Vector3 enu = convertNED2ENU(ned_in);
+    return convertENU2MGRS(enu, ref);
+}
