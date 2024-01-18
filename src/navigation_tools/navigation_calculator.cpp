@@ -5,8 +5,27 @@ NavigationCalculator::NavigationCalculator()
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp * Rp) / (R0 * R0));
-    e = sqrt(e2);
+    a = 6378137.0;
+    f = 298.257223563;
+    b = a * (1.0 - 1.0 / f);
+    K0 = 0.9996;
+    X0 = 500000;
+
+    e = sqrt((a * a - b * b) / (a * a));
+
+    e2 = pow(e, 2);
+    e4 = pow(e, 4);
+    e6 = pow(e, 6);
+    e8 = pow(e, 8);
+
+    n = a * K0;
+
+    error_threshold = 1e-16;
+    rad2deg = 180.0 / M_PI;
+    deg2rad = M_PI / 180.0;
+
+    // ECEF vars
+    f_inv = 1.0/f;
 
     setLocationLLA(0.0, 0.0, 0.0);
 }
@@ -16,8 +35,27 @@ NavigationCalculator::NavigationCalculator(LLA lla_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp * Rp) / (R0 * R0));
-    e = sqrt(e2);
+    a = 6378137.0;
+    f = 298.257223563;
+    b = a * (1.0 - 1.0 / f);
+    K0 = 0.9996;
+    X0 = 500000;
+
+    e = sqrt((a * a - b * b) / (a * a));
+
+    e2 = pow(e, 2);
+    e4 = pow(e, 4);
+    e6 = pow(e, 6);
+    e8 = pow(e, 8);
+
+    n = a * K0;
+
+    error_threshold = 1e-16;
+    rad2deg = 180.0 / M_PI;
+    deg2rad = M_PI / 180.0;
+
+    // ECEF vars
+    f_inv = 1.0/f;
 
     setLocationLLA(lla_initial_position);
 }
@@ -27,8 +65,27 @@ NavigationCalculator::NavigationCalculator(ECEF ecef_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp * Rp) / (R0 * R0));
-    e = sqrt(e2);
+    a = 6378137.0;
+    f = 298.257223563;
+    b = a * (1.0 - 1.0 / f);
+    K0 = 0.9996;
+    X0 = 500000;
+
+    e = sqrt((a * a - b * b) / (a * a));
+
+    e2 = pow(e, 2);
+    e4 = pow(e, 4);
+    e6 = pow(e, 6);
+    e8 = pow(e, 8);
+
+    n = a * K0;
+
+    error_threshold = 1e-16;
+    rad2deg = 180.0 / M_PI;
+    deg2rad = M_PI / 180.0;
+
+    // ECEF vars
+    f_inv = 1.0/f;
 
     setLocationECEF(ecef_initial_position);
 }
@@ -38,8 +95,27 @@ NavigationCalculator::NavigationCalculator(UTM utm_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp * Rp) / (R0 * R0));
-    e = sqrt(e2);
+    a = 6378137.0;
+    f = 298.257223563;
+    b = a * (1.0 - 1.0 / f);
+    K0 = 0.9996;
+    X0 = 500000;
+
+    e = sqrt((a * a - b * b) / (a * a));
+
+    e2 = pow(e, 2);
+    e4 = pow(e, 4);
+    e6 = pow(e, 6);
+    e8 = pow(e, 8);
+
+    n = a * K0;
+
+    error_threshold = 1e-16;
+    rad2deg = 180.0 / M_PI;
+    deg2rad = M_PI / 180.0;
+
+    // ECEF vars
+    f_inv = 1.0/f;
 
     setLocationUTM(utm_initial_position);
 }
@@ -49,8 +125,27 @@ NavigationCalculator::NavigationCalculator(LLADMS lladms_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp * Rp) / (R0 * R0));
-    e = sqrt(e2);
+    a = 6378137.0;
+    f = 298.257223563;
+    b = a * (1.0 - 1.0 / f);
+    K0 = 0.9996;
+    X0 = 500000;
+
+    e = sqrt((a * a - b * b) / (a * a));
+
+    e2 = pow(e, 2);
+    e4 = pow(e, 4);
+    e6 = pow(e, 6);
+    e8 = pow(e, 8);
+
+    n = a * K0;
+
+    error_threshold = 1e-16;
+    rad2deg = 180.0 / M_PI;
+    deg2rad = M_PI / 180.0;
+
+    // ECEF vars
+    f_inv = 1.0/f;
 
     setLocationLLADMS(lladms_initial_position);
 }
@@ -60,8 +155,27 @@ NavigationCalculator::NavigationCalculator(MGRS mgrs_initial_position)
     // Earth Modeling Constants
     R0 = 6378137.0;
     Rp = 6356752.3142;
-    e2 = 1 - ((Rp * Rp) / (R0 * R0));
-    e = sqrt(e2);
+    a = 6378137.0;
+    f = 298.257223563;
+    b = a * (1.0 - 1.0 / f);
+    K0 = 0.9996;
+    X0 = 500000;
+
+    e = sqrt((a * a - b * b) / (a * a));
+
+    e2 = pow(e, 2);
+    e4 = pow(e, 4);
+    e6 = pow(e, 6);
+    e8 = pow(e, 8);
+
+    n = a * K0;
+
+    error_threshold = 1e-16;
+    rad2deg = 180.0 / M_PI;
+    deg2rad = M_PI / 180.0;
+
+    // ECEF vars
+    f_inv = 1.0/f;
 
     setLocationMGRS(mgrs_initial_position);
 }
