@@ -1,1 +1,2 @@
-Need to test tangent frame rotations.
+Known Issues:
+Major errors in long distance calculations with Haversines. Do not use distance computation functionality.
