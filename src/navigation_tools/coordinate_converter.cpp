@@ -389,8 +389,8 @@ NavigationCalculator::Vector3 NavigationCalculator::convert2ENU(ECEF ecef_point,
 {
     ECEF ecef_reference = convertLLA2ECEF(lla_reference);
 
-    double latitude = degreesToRadians(lla_reference.latitude);
-    double longitude = degreesToRadians(lla_reference.longitude);
+    double latitude_rad = degreesToRadians(lla_reference.latitude);
+    double longitude_rad = degreesToRadians(lla_reference.longitude);
 
     double delta_x = ecef_point.x - ecef_reference.x;
     double delta_y = ecef_point.y - ecef_reference.y;
@@ -398,15 +398,15 @@ NavigationCalculator::Vector3 NavigationCalculator::convert2ENU(ECEF ecef_point,
 
     // Create ECEF to ENU Rotation Matrix
     double local_rotation_coefs[3][3];
-    local_rotation_coefs[0][0] = -1 * sin(longitude);
-    local_rotation_coefs[0][1] = cos(longitude);
+    local_rotation_coefs[0][0] = -1 * sin(longitude_rad);
+    local_rotation_coefs[0][1] = cos(longitude_rad);
     local_rotation_coefs[0][2] = 0;
-    local_rotation_coefs[1][0] = -1 * cos(longitude) * sin(latitude);
-    local_rotation_coefs[1][1] = -1 * sin(longitude) * sin(latitude);
-    local_rotation_coefs[1][2] = cos(latitude);
-    local_rotation_coefs[2][0] = cos(longitude) * cos(latitude);
-    local_rotation_coefs[2][1] = sin(longitude) * cos(latitude);
-    local_rotation_coefs[2][2] = sin(latitude);
+    local_rotation_coefs[1][0] = -1 * cos(longitude_rad) * sin(latitude_rad);
+    local_rotation_coefs[1][1] = -1 * sin(longitude_rad) * sin(latitude_rad);
+    local_rotation_coefs[1][2] = cos(latitude_rad);
+    local_rotation_coefs[2][0] = cos(longitude_rad) * cos(latitude_rad);
+    local_rotation_coefs[2][1] = sin(longitude_rad) * cos(latitude_rad);
+    local_rotation_coefs[2][2] = sin(latitude_rad);
 
     Vector3 enu;
     // Rotate ECEF Unit Vector to ENU
@@ -790,19 +790,19 @@ NavigationCalculator::ECEF NavigationCalculator::convertENU2ECEF(Vector3 enu_in,
     LLA lla_reference = convertECEF2LLA(ref);
     ECEF ecef_reference = ref;
 
-    double latitude = degreesToRadians(lla_reference.latitude);
-    double longiutde = degreesToRadians(lla_reference.longitude);
+    double latitude_rad = degreesToRadians(lla_reference.latitude);
+    double longitude_rad = degreesToRadians(lla_reference.longitude);
 
     double rotation_coefs[3][3];
-    rotation_coefs[0][0] = -sin(longitude);
-    rotation_coefs[0][1] = -sin(latitude)*cos(longitude);
-    rotation_coefs[0][2] = cos(latitude)*cos(longitude);
-    rotation_coefs[1][0] = cos(longitude);
-    rotation_coefs[1][1] = -sin(latitude)*sin(longitude);
-    rotation_coefs[1][2] = cos(latitude)*sin(longitude);
+    rotation_coefs[0][0] = -sin(longitude_rad);
+    rotation_coefs[0][1] = -sin(latitude_rad)*cos(longitude_rad);
+    rotation_coefs[0][2] = cos(latitude_rad)*cos(longitude_rad);
+    rotation_coefs[1][0] = cos(longitude_rad);
+    rotation_coefs[1][1] = -sin(latitude_rad)*sin(longitude_rad);
+    rotation_coefs[1][2] = cos(latitude_rad)*sin(longitude_rad);
     rotation_coefs[2][0] = 0;
-    rotation_coefs[2][1] = cos(latitude);
-    rotation_coefs[2][2] = sin(latitude);
+    rotation_coefs[2][1] = cos(latitude_rad);
+    rotation_coefs[2][2] = sin(latitude_rad);
 
     ECEF ecef_coordinates;
     ecef_coordinates.x = enu_in.x * rotation_coefs[0][0] + enu_in.y * rotation_coefs[0][1] + enu_in.z * rotation_coefs[0][2] + ecef_reference.x;
@@ -817,19 +817,19 @@ NavigationCalculator::ECEF NavigationCalculator::convertENU2ECEF(Vector3 enu_in,
     ECEF ecef_reference = convertLLA2ECEF(ref);
     LLA lla_reference = ref;
 
-    double latitude = degreesToRadians(lla_reference.latitude);
-    double longiutde = degreesToRadians(lla_reference.longitude);
+    double latitude_rad = degreesToRadians(lla_reference.latitude);
+    double longitude_rad = degreesToRadians(lla_reference.longitude);
 
     double rotation_coefs[3][3];
-    rotation_coefs[0][0] = -sin(longitude);
-    rotation_coefs[0][1] = -sin(latitude)*cos(longitude);
-    rotation_coefs[0][2] = cos(latitude)*cos(longitude);
-    rotation_coefs[1][0] = cos(longitude);
-    rotation_coefs[1][1] = -sin(latitude)*sin(longitude);
-    rotation_coefs[1][2] = cos(latitude)*sin(longitude);
+    rotation_coefs[0][0] = -sin(longitude_rad);
+    rotation_coefs[0][1] = -sin(latitude_rad)*cos(longitude_rad);
+    rotation_coefs[0][2] = cos(latitude_rad)*cos(longitude_rad);
+    rotation_coefs[1][0] = cos(longitude_rad);
+    rotation_coefs[1][1] = -sin(latitude_rad)*sin(longitude_rad);
+    rotation_coefs[1][2] = cos(latitude_rad)*sin(longitude_rad);
     rotation_coefs[2][0] = 0;
-    rotation_coefs[2][1] = cos(latitude);
-    rotation_coefs[2][2] = sin(latitude);
+    rotation_coefs[2][1] = cos(latitude_rad);
+    rotation_coefs[2][2] = sin(latitude_rad);
 
     ECEF ecef_coordinates;
     ecef_coordinates.x = enu_in.x * rotation_coefs[0][0] + enu_in.y * rotation_coefs[0][1] + enu_in.z * rotation_coefs[0][2] + ecef_reference.x;
